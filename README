@@ -1,0 +1,35 @@
+
+===========
+Description
+===========
+
+This is GSoC project for Isabelle.
+See http://socghop.appspot.com/gsoc/project/google/gsoc2011/aifargonos/13001
+
+
+============
+Dependencies
+============
+
+The same as Isabelle/jEdit dependencies.
+
+
+=====
+Build
+=====
+
+Adjust classpaths in simple_build.xml to point to mentioned jars and run
+
+$ ant -f simple_build.xml
+
+
+===========
+Instalation
+===========
+
+First install Isabelle/jEdit. Then copy produced HTMLExportPlugin.jar from
+simple_dist to Isabelle's jEdit's plugin directory. In my case it is
+~~/src/Tools/jEdit/dist/jars . Finally reload the plugin in jEdit's Plugin
+Manager, if it is already runnuing.
+
+
