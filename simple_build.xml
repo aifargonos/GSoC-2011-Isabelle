@@ -1,0 +1,42 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project name="HTMLExportPlugin" default="default" basedir=".">
+	<description>Simple build for HTMLExportPlugin.</description>
+	
+	<target name="init" description="Initialisation.">
+		<property name="src.dir" location="src"/>
+		<property name="src.files" value="HTMLExportDockable.scala HTMLExportOptions.scala HTMLExportPlugin.scala Template.scala"/><!-- TODO .: this may be probably more general :. -->
+		<property name="build.dir" location="simple_build"/>
+		<property name="jar.dir" location="simple_dist"/>
+		<property name="jar.name" value="${ant.project.name}.jar"/>
+		
+		<!-- ADJUST THESE PATHS !!! -->
+		<property name="jEdit.dist" location="../../isabelle_hg/src/Tools/jEdit/dist"/>
+		<property name="classpath.jEdit" value="${jEdit.dist}/jedit.jar"/>
+		<property name="classpath.Pure" value="${jEdit.dist}/jars/Pure.jar"/>
+		<property name="classpath.Isabelle-jEdit" value="${jEdit.dist}/jars/Isabelle-jEdit.jar"/>
+		<property name="classpath.cobra" value="${jEdit.dist}/jars/cobra.jar"/>
+		<property name="classpath.js" value="${jEdit.dist}/jars/js.jar"/>
+		<property name="classpath" value=".:${classpath.jEdit}:${classpath.Pure}:${classpath.Pure}:${classpath.Isabelle-jEdit}:${classpath.cobra}:${classpath.js}"/>
+		
+		<!-- TODO ??? SCALA_HOME -->
+		<!--<echoproperties/>-->
+	</target>
+	
+	<target name="compile" depends="init" description="Compile.">
+		<mkdir dir="${build.dir}"/>
+		<exec executable="scalac" dir="${src.dir}">
+			<arg line="-classpath ${classpath} -d ${build.dir} ${src.files}"/>
+		</exec>
+		<copy todir="${build.dir}">
+			<fileset dir="${src.dir}" excludes="**/*.scala"/>
+		</copy>
+	</target>
+	
+	<target name="jar" depends="compile" description="Build JAR.">
+		<mkdir dir="${jar.dir}"/>
+		<jar destfile="${jar.dir}/${jar.name}" basedir="${build.dir}"/>
+	</target>
+	
+	<target name="default" depends="jar" description="Build just the plugin jar."/>
+	
+</project>

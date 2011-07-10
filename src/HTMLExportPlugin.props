@@ -1,0 +1,38 @@
+
+# jEdit only needs to load the plugin the first time the user accesses it
+# the presence of this property also tells jEdit the plugin is using the new API
+#plugin.HTMLExportPlugin.activate=defer
+plugin.HTMLExportPlugin.activate=startup
+
+# These two properties are required for all plugins
+plugin.HTMLExportPlugin.name=HTMLExport
+plugin.HTMLExportPlugin.author=aifargonos
+
+# version number
+plugin.HTMLExportPlugin.version=1.0
+
+# we only have one dependency, jEdit 4.2, since we use the new plugin API
+plugin.HTMLExportPlugin.depend.0=jedit 04.02.01.00
+plugin.HTMLExportPlugin.depend.1=jdk 1.6
+
+# dockable window name
+htmlexport.title=HTMLExport
+
+# action labels for actions supplied by dockables.xml
+htmlexport.label=HTMLExport
+
+plugin.HTMLExportPlugin.description=This plugin exports a content of a current buffer to HTML.
+
+# plugin menu
+plugin.HTMLExportPlugin.menu.label=HTML export
+plugin.HTMLExportPlugin.menu=htmlexport.export htmlexport.dockable
+htmlexport.export.label=export
+htmlexport.dockable.label=dockable
+
+# options
+plugin.HTMLExportPlugin.option-pane=HTMLExport
+options.HTMLExport.label=HTML Export
+options.HTMLExport.code=new HTMLExportOptions();
+options.HTMLExport.exporttofile.title=Export to File:
+options.HTMLExport.exporttofile.button=Browse
+options.HTMLExport.exporttofile=

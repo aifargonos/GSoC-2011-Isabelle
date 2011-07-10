@@ -1,0 +1,16 @@
+<?xml version="1.0"?>
+<!DOCTYPE ACTIONS SYSTEM "actions.dtd">
+
+<ACTIONS>
+	<ACTION NAME="htmlexport.dockable">
+		<CODE>
+			wm.addDockableWindow("htmlexport");
+		</CODE>
+	</ACTION>
+	<ACTION NAME="htmlexport.export">
+		<CODE>
+			HTMLExportPlugin.export(HTMLExportPlugin.convert(view));
+		</CODE>
+	</ACTION>
+</ACTIONS>
+
