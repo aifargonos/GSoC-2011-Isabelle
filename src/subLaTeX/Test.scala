@@ -23,6 +23,8 @@ Reserved chars .: \# \$ \% \^{} \& \_ \{ \} \~{} \textbackslash
 
 Not reserved chars .: @ ?? [ ]
 
+and some unicodes .: ∀ αβγ あ 日
+
 Some quotes .: ``quotes'' ,,quotes'' "quotes" <<quotes>> `quotes' `'`'`; I will most probably ignore this \ldots
 
 \section  *  {.. and numbers}

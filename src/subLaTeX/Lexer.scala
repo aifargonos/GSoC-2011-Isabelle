@@ -15,11 +15,11 @@ import scala.util.parsing.combinator.RegexParsers
 
 object Lexer {
   
-  def rpt(s: String, i: Int): String = s*i
+  def rpt(s: String, i: Int): String = s*i// TODO .: debug
 
 
-  val reserved = Set("{", "}")// TODO .: maybe more :. like .: \, #
-//  val reserved = Set('{', '}')// TODO .: maybe more :. like .: \, #
+//  val reserved = Set("{", "}")// TODO .: maybe more :. like .: \, #
+  val reserved = Set('{', '}')// TODO .: maybe more :. like .: \, #
 
 
 }
@@ -29,9 +29,9 @@ class Lexer extends RegexParsers {
 
   import Lexer._
 
-  var ind: Int = 0
+  var ind: Int = 0// TODO .: debug
   
-  def alt[T](p: => Parser[T], q: => Parser[T]) = new Parser[T] {
+  def alt[T](p: => Parser[T], q: => Parser[T]) = new Parser[T] {// TODO .: debug
     def apply(in: Input) = {
 
       println(rpt("\t",ind) + "alt")
@@ -46,7 +46,7 @@ class Lexer extends RegexParsers {
         case failure =>
           println(rpt("\t",ind) + "p failed, trying q(" + q + ")")
           val ret = q(in)
-          println(rpt("\t",ind) + "q results in:" + (ret match{case Success(r, _) => r case failure => "failure"}) )
+          println(rpt("\t",ind) + "q results in: " + (ret match{case Success(r, _) => r case failure => "failure"}) )
           ind -= 1
           ret
       }
@@ -54,43 +54,9 @@ class Lexer extends RegexParsers {
   }
 
 
-  def cond[T](p: => Parser[T], c: T => Boolean) = new Parser[T] {// TODO .: use acceplIf
-    def apply(in: Input) = p(in) match {
-        case s1 @ Success(r, _) =>
-          if(c(r)) s1 else Failure("" + r + " does not satisfy a condition", in)
-        case failure => failure
-      }
-  }.named("cond")
-  
-  
-  
-//  class DynamicParser[T]() extends Parser[T]
-//  {// TODO .: cannot find Parsers .. don't know why ..
-//    // TODO !!!
-//    def apply(in: Input) =
-//    {
-//      // TODO !!!
-//      scala.util.parsing.combinator.Parsers.Failute("TODO !!! Not Implemented, yet !!!", in)
-//    }
-//  }
-//
-//  def dynamic[T,U](p: => Parser[T])(following: T => Parser[U]): Parser[U] = new Parser[U]// TODO .: use "into" !!!
-//  {
-//    def apply(in: Input) =
-//    {
-//      p(in) match {
-//        case s1 @ Success(result, next) =>
-//          following(result)(next)
-//        case failure => failure.asInstanceOf[NoSuccess]
-//      }
-//    }
-//  }
   
   def andStar(command:String) =
   {// TODO .: handleWhitespace explicitly ??
-//    opt(elem('*')) ^^ {case Some(r) => command + r case None => command}
-////    (elem('*')?) ^^ {case Some(r) => command + r case None => command}
-//    opt("""*""") ^^ {case Some(_) => command + "*" case None => command}
     ("""*"""?) ^^ {case Some(_) => command + "*" case None => command}
   }
   
@@ -108,13 +74,6 @@ class Lexer extends RegexParsers {
     {r => "Num(" + r + ")"}
   }.named("number")
 
-//  def command: Parser[Any] =
-//  {// TODO !!! .: use one regex for this !!! there must be no spaces !!! and """\ """ is also a command !!! """\\*""" becomes Command(\), Char(*) !!!
-////    """\"""~>("""[@A-Za-z]+\*?""".r | """[^A-Za-z]""".r | """\*""") ^^
-//    """\\(([@A-Za-z]+\*?)|(\\\*)|([^A-Za-z]))""".r ^^
-//    {r => "Command(" + r + ")"}// TODO .: * can be actually separated by white spaces
-//  }.named("command")
-//
   def command: Parser[Any] =
   {
     ("""\\(([@A-Za-z]+)|(\\))""".r >> andStar | """\\[^A-Za-z]""".r) ^^
@@ -129,16 +88,14 @@ class Lexer extends RegexParsers {
   
   def char: Parser[Any] =
   {
-    cond(""".""".r, (x:String) => !reserved(x)) ^^
-//    acceptIf(!reserved(_))(e => "" + e + " is a reserved character") ^^TODO .: this is looping .. I don't know why ..
+    """\s*""".r ~>
+    acceptIf(x => !x.isControl && !reserved(x))(e => "" + e + " is a reserved character") ^^
     {r => "Char(" + r + ")"}
   }.named("char")
 
   def text: Parser[Any] =
   {
     (word | number | command | group | char) ^^
-//    (word | number | command | group) ^^
-//    (word | number | command | char | group) ^^
 //    alt(alt(alt(alt(word, number).named("then number"), command).named("then command"), group).named("then group"), char).named("then char") ^^
     {r => r}
   }.named("text")
