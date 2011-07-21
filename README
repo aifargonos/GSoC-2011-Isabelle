@@ -11,7 +11,8 @@ See http://socghop.appspot.com/gsoc/project/google/gsoc2011/aifargonos/13001
 Dependencies
 ============
 
-The same as Isabelle/jEdit dependencies.
+Works for Isabelle/717880e98e6b.
+Otherwise the same as Isabelle/jEdit dependencies.
 
 
 =====

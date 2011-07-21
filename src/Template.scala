@@ -104,10 +104,18 @@ body { background-color: #FFFFFF; }
      *  replace them with what is bound to their identifiers in data
      */
 
-    tem_variable_r.replaceAllIn(template, m => {
-      val iden = m.group(1)// TODO .: exceptional cases ??
-      data.getOrElse(iden, "")// TODO .: this should probably throw and exception ..
-    })
+////    try {// FIXME !!! it throws "IllegalArgumentException: Illegal group reference" this is probably error in JRE !!!
+//      tem_variable_r.replaceAllIn(template, m => {
+//        val iden = m.group(1)// TODO .: exceptional cases ??
+//        data.getOrElse(iden, "")// TODO .: this should probably throw and exception ..
+//      })
+////    } catch {
+////      case e: IllegalArgumentException => throw new Exception("Match has no groups !! POST !!", e)
+////    }
+
+    // FIXME .: workaround :.
+    val s = tem_variable_r.split(template)
+    s(0) + data.getOrElse("source", "") + s(1)
 
   }
 
