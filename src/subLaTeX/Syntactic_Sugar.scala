@@ -22,24 +22,24 @@ object Syntactic_Sugar
 
 
 //  def comment: Parser[Any] =
-  def comment: Parser[Block] =
+  def comment: Parser[Token] =
   {
     """%.*""".r ~ new_line ~ """\s*""".r ^^^
 //    {"%comment"}// TODO .: make this produce no output (Nothing ?? Unit ???) .. or make it a command .. or produce a comment
-    {new Compound(List(Simple(""))){override def toString = "%comment"}}// TODO ... or just Simple("") ??
+    {Control("%comment")}// TODO ... or just Group(Nil) ??
   }.named("comment")
 
 //  def implicit_par: Parser[Any] =
-  def implicit_par: Parser[Block] =
+  def implicit_par: Parser[Token] =
   {
     new_line ~ """[\s&&[^\n]]*""".r ~ new_line ^^^
 //    {"Command(\n\\par\n)"}// TODO .: this should call command \par and hence eat all white space after
-    {new Compound(List(Simple(""))){override def toString = "Command(\n\\par\n)"}}// TODO ...
+    {Control("\n\\par\n")}// TODO ...
   }.named("implicit par")
   
   
 //  def syntactic_sugar: Parser[Any] =
-  def syntactic_sugar: Parser[Block] =
+  def syntactic_sugar: Parser[Token] =
   {// or preprocessing ??
     comment | implicit_par
   }.named("syntactic sugar")

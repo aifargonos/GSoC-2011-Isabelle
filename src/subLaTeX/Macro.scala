@@ -17,15 +17,15 @@ object Macro
    */
   
   def empty(command: String) = new Macro("", Lexer.success(()),// TODO !!! sensible default !!!
-    {_ => new Compound(List(Simple(command))){override def toString = "Command(" + content.head.asInstanceOf[Simple].content + ")"}})
-  val empty: Macro = empty("")
+//    {_ => new Compound(List(Simple(command))){override def toString = "Command(" + content.head.asInstanceOf[Simple].content + ")"}})
+    {_ => Control(command)})// TODO .: DEBUG
+  val empty: Macro = empty("")// TODO .: DEBUG
 
   val storage = scala.collection.mutable.Map.empty[String, Macro]
 
   def apply(name: String): Macro =
   {
-//    storage(name)
-    empty(name)// TODO .: debug
+    storage.getOrElse(name, empty(name))
   }
   
   
@@ -33,7 +33,7 @@ object Macro
 
 
 
-class Macro(val name: String, after: Lexer.Parser[Any], code: Any => Block)
+class Macro(val name: String, after: Lexer.Parser[Any], code: Any => Token)
 {
   /* TODO
    *  name (id, key in the storage)
@@ -45,7 +45,7 @@ class Macro(val name: String, after: Lexer.Parser[Any], code: Any => Block)
    *  copy(clone) for \let !!!
    */
    
-  def apply(): Lexer.Parser[Block] =
+  def apply(): Lexer.Parser[Token] =
   {
     after ^^ code
   }

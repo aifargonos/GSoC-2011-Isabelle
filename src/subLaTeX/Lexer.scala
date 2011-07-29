@@ -104,7 +104,7 @@ object Lexer extends RegexParsers
   
   
 //  def syntactic_sugar: Parser[Any] =
-  def syntactic_sugar: Parser[Block] =
+  def syntactic_sugar: Parser[Token] =
   {// or preprocessing ??
 //    failure("TODO .: not implemented yet")// TODO .: there will be .: comments, double newline, special characters, ... here
     Syntactic_Sugar()
@@ -112,7 +112,7 @@ object Lexer extends RegexParsers
   
   
 //  def command: Parser[Any] =
-  def command: Parser[Block] =
+  def command: Parser[Token] =
   {
     ( ("""\\(([@A-Za-z]+)|(\\))""".r >> andStar | """\\[^A-Za-z]""".r) >> (Macro(_)()) ) ^^
 //    {r => "Command(" + r + ")"}
@@ -121,24 +121,24 @@ object Lexer extends RegexParsers
   }.named("command")
   
 //  def white_space: Parser[Any] =
-  def white_space: Parser[Block] =
+  def white_space: Parser[Token] =
   {
     """\s+""".r ^^
 //    {r => "(" + r + ")"}
-    {r => Simple(r)}// TODO .: what should I do with the white space then ??
+    {r => White_Space(r)}// TODO .: what should I do with the white space then ??
   }.named("white_space")
 
 //  def char: Parser[Any] =
-  def char: Parser[Block] =
+  def char: Parser[Token] =
   {
     acceptIf(x => !x.isControl && !reserved(x))(e => "" + e + " is a reserved character") ^^
 //    {r => r}
-    {r => Simple(r.toString)}
+    {r => Character(r)}
   }.named("char")
 
 //  def group: Parser[Any] =
-  def group: Parser[Block] =
-  {
+  def group: Parser[Token] =
+  {// TODO .: "{"~>rep(token)<~"}" ^^ {r => Group(r)} :. ??
     "{"~>body<~"}" ^^
 //    {r => "Group(" + r + ")"}
     {r => r}
@@ -146,7 +146,7 @@ object Lexer extends RegexParsers
   
   
 //  def lexem: Parser[Any] =
-  def lexem: Parser[Block] =
+  def token: Parser[Token] =
   {
 //    (white_space | char | command | group) ^^
     (syntactic_sugar | white_space | char | command | group) ^^
@@ -156,31 +156,11 @@ object Lexer extends RegexParsers
   
   
 //  def body: Parser[Any] =
-  def body: Parser[Block] =
+  def body: Parser[Token] =
   {
-    rep(lexem) ^^
+    rep(token) ^^
 //    {r => r.mkString(", ")}
-    {// combines successive Simple-s :. TODO .: this should be done in Block ...
-      case Nil => Compound(Nil)
-      case head::tail =>
-        val buff = new ListBuffer[Block]
-        val last = (head /: tail) {(block1, block2) =>
-          block1 match {
-            case b1: Simple =>
-              block2 match {
-                case b2: Simple => b1 + b2
-                case b2: Compound =>
-                  buff += b1
-                  b2
-              }
-            case b1: Compound =>
-              buff += b1
-              block2
-          }
-        }
-        buff += last
-        Compound(buff.toList)
-    }
+    {r => Group(r)}
   }.named("body")
   
 
