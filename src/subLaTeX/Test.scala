@@ -38,7 +38,7 @@ NO !!
 
 \section{Special chars ..}
 
-Eat this .: \"a \~a \'a \^a \^{aa} \ldots    \ \ \ and nbsp-s\~\textbackslash
+Eat this .: \"a \~a \'a \^a \^{aa} (\~{ 	n \ldots\newline baobab }) \ldots    \ \ \ and nbsp-s\~\textbackslash
 
 Backslash sometimes cancels newline
 \

@@ -32,9 +32,10 @@ object Syntactic_Sugar
 //  def implicit_par: Parser[Any] =
   def implicit_par: Parser[Token] =
   {
-    new_line ~ """[\s&&[^\n]]*""".r ~ new_line ^^^
+    new_line ~ """[\s&&[^\n]]*""".r ~ new_line >>
 //    {"Command(\n\\par\n)"}// TODO .: this should call command \par and hence eat all white space after
-    {Control("\n\\par\n")}// TODO ...
+//    {Control("\n\\par\n")}// TODO ...
+    {_ => Macro("\\par")()}// TODO ...
   }.named("implicit par")
   
   

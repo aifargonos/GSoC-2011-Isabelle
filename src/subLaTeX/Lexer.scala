@@ -53,53 +53,13 @@ object Lexer extends RegexParsers
 
 
   
-  def andStar(command:String) =
-  {
-    ("""\s*\*""".r?) ^^ {case Some(_) => command + "*" case None => command}
-  }
-  
-  
-/*
-  def word: Parser[Any] =
-  {
-    """[A-Za-z]+""".r ^^
-    {r => "Word(" + r + ")"}
-  }.named("word")
-  
-  def number: Parser[Any] =
-  {
-    """[0-9]+""".r ^^
-    {r => "Num(" + r + ")"}
-  }.named("number")
-
-  def command: Parser[Any] =
-  {
-    ("""\\(([@A-Za-z]+)|(\\))""".r >> andStar | """\\[^A-Za-z]""".r) ^^
-    {r => "Command(" + r + ")"}
-  }.named("command")
-
-  def group: Parser[Any] =
-  {
-    "{"~>body<~"}" ^^
-    {r => "Group(" + r + ")"}
-  }.named("group")
-  
-  def char: Parser[Any] =
-  {
-    """\s*""".r ~>
-    acceptIf(x => !x.isControl && !reserved(x))(e => "" + e + " is a reserved character") ^^
-    {r => "Char(" + r + ")"}
-  }.named("char")
-
-  def text: Parser[Any] =
-  {
-    (word | number | command | group | char) ^^
-//    alt(alt(alt(alt(word, number).named("then number"), command).named("then command"), group).named("then group"), char).named("then char") ^^
-    {r => r}
-  }.named("text")
-  */
-  
-  
+//  def andStar(command:String) =
+//  {
+//    ("""\s*\*""".r?) ^^ {case Some(_) => command + "*" case None => command}
+//  }
+//
+//
+//
   override val whiteSpace = "".r
   
   
@@ -114,7 +74,7 @@ object Lexer extends RegexParsers
 //  def command: Parser[Any] =
   def command: Parser[Token] =
   {
-    ( ("""\\(([@A-Za-z]+)|(\\))""".r >> andStar | """\\[^A-Za-z]""".r) >> (Macro(_)()) ) ^^
+    ( """\\(([@A-Za-z]+)|([^A-Za-z]))""".r >> (Macro(_)()) ) ^^
 //    {r => "Command(" + r + ")"}
 //    {r => new Compound(List(Simple(r))){override def toString = "Command(" + content.head.asInstanceOf[Simple].content + ")"}}// TODO ...
     {r => r}

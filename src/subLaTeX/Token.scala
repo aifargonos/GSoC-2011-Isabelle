@@ -18,7 +18,7 @@ case class Control(content: String) extends Token
 }
 case class White_Space(content: String) extends Token
 {
-  override def toString = "WS(" + content + ")"
+  override def toString = "(" + content + ")"
 }
 case class Character(content: Char) extends Token
 {
