@@ -64,7 +64,7 @@ object Lexer extends RegexParsers
   
   
 //  def syntactic_sugar: Parser[Any] =
-  def syntactic_sugar: Parser[Token] =
+  def syntactic_sugar: Parser[List[Token]] =
   {// or preprocessing ??
 //    failure("TODO .: not implemented yet")// TODO .: there will be .: comments, double newline, special characters, ... here
     Syntactic_Sugar()
@@ -72,7 +72,7 @@ object Lexer extends RegexParsers
   
   
 //  def command: Parser[Any] =
-  def command: Parser[Token] =
+  def command: Parser[List[Token]] =
   {
     ( """\\(([@A-Za-z]+)|([^A-Za-z]))""".r >> (Macro(_)()) ) ^^
 //    {r => "Command(" + r + ")"}
@@ -81,33 +81,35 @@ object Lexer extends RegexParsers
   }.named("command")
   
 //  def white_space: Parser[Any] =
-  def white_space: Parser[Token] =
+  def white_space: Parser[List[Token]] =
   {
     """\s+""".r ^^
 //    {r => "(" + r + ")"}
-    {r => White_Space(r)}// TODO .: what should I do with the white space then ??
+    {r => List(White_Space(r))}// TODO .: what should I do with the white space then ??
   }.named("white_space")
 
 //  def char: Parser[Any] =
-  def char: Parser[Token] =
+  def char: Parser[List[Token]] =
   {
     acceptIf(x => !x.isControl && !reserved(x))(e => "" + e + " is a reserved character") ^^
 //    {r => r}
-    {r => Character(r)}
+    {r => List(Character(r))}
   }.named("char")
 
 //  def group: Parser[Any] =
-  def group: Parser[Token] =
-  {// TODO .: "{"~>rep(token)<~"}" ^^ {r => Group(r)} :. ??
+  def group: Parser[List[Token]] =
+  {
     "{"~>body<~"}" ^^
 //    {r => "Group(" + r + ")"}
     {r => r}
+//    "{"~>rep(token)<~"}" ^^
+//    {r => List(Group(r.flatten))}
   }.named("group")
   
   
 //  def lexem: Parser[Any] =
-  def token: Parser[Token] =
-  {
+  def token: Parser[List[Token]] =
+  {// FIXME !!! not everything have to return a List...
 //    (white_space | char | command | group) ^^
     (syntactic_sugar | white_space | char | command | group) ^^
 //    alt(alt(alt(alt(syntactic_sugar, white_space).named("then white_space"), char).named("then char"), command).named("then command"), group).named("then group") ^^
@@ -116,11 +118,11 @@ object Lexer extends RegexParsers
   
   
 //  def body: Parser[Any] =
-  def body: Parser[Token] =
+  def body: Parser[List[Token]] =
   {
     rep(token) ^^
 //    {r => r.mkString(", ")}
-    {r => Group(r)}
+    {r => List(Group(r.flatten))}
   }.named("body")
   
 
