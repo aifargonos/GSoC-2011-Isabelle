@@ -30,4 +30,8 @@ case class Group(content: List[Token]) extends Token
   override def toString = "Group(" + content.mkString(", ") + ")"
 }
 
+case class ErrorToken(msg: String) extends Token
+{
+//  override def toString = "Control(" + content + ")"
+}
 

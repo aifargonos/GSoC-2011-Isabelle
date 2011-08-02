@@ -15,33 +15,28 @@ object Syntactic_Sugar
   }
   
 
-  def new_line: Parser[String] =
+  def comment: Parser[Token] =
   {
-    "\n" | "\r\n"
-  }.named("new_line")
-
-
-//  def comment: Parser[Any] =
-  def comment: Parser[List[Token]] =
-  {
-    """%.*""".r ~ new_line ~ """\s*""".r ^^^
-//    {"%comment"}// TODO .: make this produce no output (Nothing ?? Unit ???) .. or make it a command .. or produce a comment
-//    {List(Control("%comment"))}// TODO ... or just Group(Nil) ??
-    {Nil}// TODO ... or just Group(Nil) ??
+    (
+      Lexer.comment ~
+      rep(acceptIf(c => !Newline(c) && !Ignore(c))(char_err("non newline"))) ~
+      newline ~
+      rep(space)
+    ) ~>
+    Lexer.token
   }.named("comment")
 
-//  def implicit_par: Parser[Any] =
-  def implicit_par: Parser[List[Token]] =
+  def implicit_par: Parser[Token] =
   {
-    new_line ~ """[\s&&[^\n]]*""".r ~ new_line >>
+    newline ~ rep(space) ~ newline >>
 //    {"Command(\n\\par\n)"}// TODO .: this should call command \par and hence eat all white space after
 //    {Control("\n\\par\n")}// TODO ...
-    {_ => Macro("\\par")()}// TODO ...
+    {_ => Macro("par")()}// TODO ...
   }.named("implicit par")
   
   
 //  def syntactic_sugar: Parser[Any] =
-  def syntactic_sugar: Parser[List[Token]] =
+  def syntactic_sugar: Parser[Token] =
   {// or preprocessing ??
     comment | implicit_par
   }.named("syntactic sugar")

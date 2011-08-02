@@ -7,7 +7,7 @@ package subLaTeX
  *  stack for local def-s
  */
 
-class Macro(val name: String, after: Lexer.Parser[Any], code: Any => List[Token])
+class Macro(val name: String, after: Lexer.Parser[Any], code: Any => Token)
 {
   /* TODO
    *  name (id, key in the storage)
@@ -19,7 +19,7 @@ class Macro(val name: String, after: Lexer.Parser[Any], code: Any => List[Token]
    *  copy(clone) for \let !!!
    */
 
-  def apply(): Lexer.Parser[List[Token]] =
+  def apply(): Lexer.Parser[Token] =
   {
     after ^^ code
   }
@@ -39,7 +39,7 @@ object Macro
   
   def empty(command: String) = new Macro("", Lexer.success(()),// TODO !!! sensible default !!!
 //    {_ => new Compound(List(Simple(command))){override def toString = "Command(" + content.head.asInstanceOf[Simple].content + ")"}})
-    {_ => List(Control(command))})// TODO .: DEBUG
+    {_ => Control(command)})// TODO .: DEBUG
   val empty: Macro = empty("")// TODO .: DEBUG
   // TODO .: default :. if command matches """\\\s+""".r , it is actually "\\ " .. use let for this
   // .. or nbsp-s will just go higher as a Control-s and be interpreted there ..
@@ -72,62 +72,62 @@ object Macro
   
   
   
-  define(new Macro("""\par""",
-    """\s*""".r,
+  define(new Macro("par",
+    Lexer.rep(Lexer.space | Lexer.newline),
     _ => {
       // TODO .: pop softs into local stack !!! on Syntactic level !!!
-//      List(Control("\\par"))
-      List(Control("\n\\par\n"))// TODO DEBUG
+//      List(Control("par"))
+      Control("\npar\n")// TODO DEBUG
       // TODO .: push stuff from local stack !!! on Syntactic level !!!
       // TODO .: successive \par-s should be ignored :.
     }
   ))
   
-  define(new Macro("""\\""",
+  define(new Macro("""\""",
     macro_*,
     arg => {
-      List(Control("""\newline"""))
+      Control("""newline""")
     }
   ))
   
-  define(new Macro("""\newline""",
+  define(new Macro("newline",
     ignore_white_space,
     arg => {
-      List(Control("""\newlineDEBUG"""))
+      Control("newlineDEBUG")// TODO DEBUG
     }
   ))
   
-  define(new Macro("""\section""",// FIXME !!! does not work properly
+  define(new Macro("section",// FIXME !!! does not work properly
     macro_* ~ macro_arg,// TODO .: some sensible argument encoding ...
     {
       case Lexer.~(None, arg) =>
-        List(Control("""\section TODO{""" + arg + "}"))// TODO ...
+        Control("""section TODO{""" + arg + "}")// TODO ...
       case Lexer.~(Some(_), arg) =>
-        List(Control("""\section* TODO{""" + arg + "}"))// TODO ...
+        Control("""section* TODO{""" + arg + "}")// TODO ...
     }
   ))
   
-  define(new Macro("""\subsection""",
+  define(new Macro("subsection",
     macro_* ~ macro_arg,// TODO .: some sensible argument encoding ...
     {
       case Lexer.~(None, arg) =>
-        List(Control("""\subsection TODO{""" + arg + "}"))// TODO ...
+        Control("""subsection TODO{""" + arg + "}")// TODO ...
       case Lexer.~(Some(_), arg) =>
-        List(Control("""\subsection* TODO{""" + arg + "}"))// TODO ...
+        Control("""subsection* TODO{""" + arg + "}")// TODO ...
     }
   ))
   
-  define(new Macro("""\textbackslash""",
+  define(new Macro("textbackslash",
     ignore_white_space,
     _ => {
-      List(Character('\\'))
+      Character('\\')
     }
   ))
   
-  define(new Macro("""\ldots""",
+  define(new Macro("ldots",
     ignore_white_space,
     _ => {
-      List(Character('…'))// TODO ... unicode management ...
+      Character('…')// TODO ... unicode management ...
     }
   ))
   
@@ -139,205 +139,205 @@ object Macro
     case list => list
   }
   
-  define(new Macro("\\'",
+  define(new Macro("\'",
     macro_arg,// TODO .: some sensible argument encoding ... ??
     arg => {
 
-      def fun(token: Token): List[Token] = token match
+      def fun(token: Token): Token = token match
       {// TODO ... unicode management ...
-        case Character('A') => List(Character('Á'))
-        case Character('E') => List(Character('É'))
-        case Character('I') => List(Character('Í'))
-        case Character('O') => List(Character('Ó'))
-        case Character('U') => List(Character('Ú'))
-        case Character('Y') => List(Character('Ý'))
-        case Character('a') => List(Character('á'))
-        case Character('e') => List(Character('é'))
-        case Character('i') => List(Character('í'))
-        case Character('o') => List(Character('ó'))
-        case Character('u') => List(Character('ú'))
-        case Character('y') => List(Character('ý'))
-        case Character('C') => List(Character('Ć'))
-        case Character('c') => List(Character('ć'))
-        case Character('L') => List(Character('Ĺ'))
-        case Character('l') => List(Character('ĺ'))
-        case Character('N') => List(Character('Ń'))
-        case Character('n') => List(Character('ń'))
-        case Character('R') => List(Character('Ŕ'))
-        case Character('r') => List(Character('ŕ'))
-        case Character('S') => List(Character('Ś'))
-        case Character('s') => List(Character('ś'))
-        case Character('Z') => List(Character('Ź'))
-        case Character('z') => List(Character('ź'))
-        case Character('G') => List(Character('Ǵ'))
-        case Character('g') => List(Character('ǵ'))
-        case Group(Nil) => List(Character('´'))
+        case Character('A') => Character('Á')
+        case Character('E') => Character('É')
+        case Character('I') => Character('Í')
+        case Character('O') => Character('Ó')
+        case Character('U') => Character('Ú')
+        case Character('Y') => Character('Ý')
+        case Character('a') => Character('á')
+        case Character('e') => Character('é')
+        case Character('i') => Character('í')
+        case Character('o') => Character('ó')
+        case Character('u') => Character('ú')
+        case Character('y') => Character('ý')
+        case Character('C') => Character('Ć')
+        case Character('c') => Character('ć')
+        case Character('L') => Character('Ĺ')
+        case Character('l') => Character('ĺ')
+        case Character('N') => Character('Ń')
+        case Character('n') => Character('ń')
+        case Character('R') => Character('Ŕ')
+        case Character('r') => Character('ŕ')
+        case Character('S') => Character('Ś')
+        case Character('s') => Character('ś')
+        case Character('Z') => Character('Ź')
+        case Character('z') => Character('ź')
+        case Character('G') => Character('Ǵ')
+        case Character('g') => Character('ǵ')
+        case Group(Nil) => Character('´')
         case Group(toks) =>
           drop_white_space(toks) match {
-            case Nil => List(Character('´'))
-            case head::tail => List(Group(fun(head):::tail))
+            case Nil => Character('´')
+            case head::tail => Group(fun(head)::tail)
           }
-        case token => List(token)// TODO .: error ??? !!!
+        case token => token// TODO .: error ??? !!!
       }
 
 //        fun(arg)// TODO .: make it know it is getting a token !!! argments class
-        fun(arg.asInstanceOf[List[Token]].head)
+        fun(arg.asInstanceOf[Token])
     }
   ))
   
-  define(new Macro("\\\"",
+  define(new Macro("\"",
     macro_arg,// TODO .: some sensible argument encoding ... ??
     arg => {
       
-      def fun(token: Token): List[Token] = token match
+      def fun(token: Token): Token = token match
       {// TODO ... unicode management ...
-        case Character('A') => List(Character('Ä'))
-        case Character('E') => List(Character('Ë'))
-        case Character('I') => List(Character('Ï'))
-        case Character('O') => List(Character('Ö'))
-        case Character('U') => List(Character('Ü'))
-        case Character('Y') => List(Character('Ÿ'))
-        case Character('a') => List(Character('ä'))
-        case Character('e') => List(Character('ë'))
-        case Character('i') => List(Character('ï'))
-        case Character('o') => List(Character('ö'))
-        case Character('u') => List(Character('ü'))
-        case Character('y') => List(Character('ÿ'))
-        case Group(Nil) => List(Character('¨'))
+        case Character('A') => Character('Ä')
+        case Character('E') => Character('Ë')
+        case Character('I') => Character('Ï')
+        case Character('O') => Character('Ö')
+        case Character('U') => Character('Ü')
+        case Character('Y') => Character('Ÿ')
+        case Character('a') => Character('ä')
+        case Character('e') => Character('ë')
+        case Character('i') => Character('ï')
+        case Character('o') => Character('ö')
+        case Character('u') => Character('ü')
+        case Character('y') => Character('ÿ')
+        case Group(Nil) => Character('¨')
         case Group(toks) =>
           drop_white_space(toks) match {
-            case Nil => List(Character('¨'))
-            case head::tail => List(Group(fun(head):::tail))
+            case Nil => Character('¨')
+            case head::tail => Group(fun(head)::tail)
           }
-        case token => List(token)// TODO .: error ??? !!!
+        case token => token// TODO .: error ??? !!!
       }
 
 //        fun(arg)// TODO .: make it know it is getting a token !!! argments class
-        fun(arg.asInstanceOf[List[Token]].head)
+        fun(arg.asInstanceOf[Token])
     }
   ))
   
-  define(new Macro("\\^",
+  define(new Macro("^",
     macro_arg,// TODO .: some sensible argument encoding ... ??
     arg => {
 
-      def fun(token: Token): List[Token] = token match
+      def fun(token: Token): Token = token match
       {// TODO ... unicode management ...
-        case Character('A') => List(Character('Â'))
-        case Character('E') => List(Character('Ê'))
-        case Character('I') => List(Character('Î'))
-        case Character('O') => List(Character('Ô'))
-        case Character('U') => List(Character('Û'))
-        case Character('a') => List(Character('â'))
-        case Character('e') => List(Character('ê'))
-        case Character('i') => List(Character('î'))
-        case Character('o') => List(Character('ô'))
-        case Character('u') => List(Character('û'))
-        case Character('C') => List(Character('Ĉ'))
-        case Character('c') => List(Character('ĉ'))
-        case Character('G') => List(Character('Ĝ'))
-        case Character('g') => List(Character('ĝ'))
-        case Character('H') => List(Character('Ĥ'))
-        case Character('h') => List(Character('ĥ'))
-        case Character('J') => List(Character('Ĵ'))
-        case Character('j') => List(Character('ĵ'))
-        case Character('S') => List(Character('Ŝ'))
-        case Character('s') => List(Character('ŝ'))
-        case Character('W') => List(Character('Ŵ'))
-        case Character('w') => List(Character('ŵ'))
-        case Character('Y') => List(Character('Ŷ'))
-        case Character('y') => List(Character('ŷ'))
-        case Group(Nil) => List(Character('^'))
+        case Character('A') => Character('Â')
+        case Character('E') => Character('Ê')
+        case Character('I') => Character('Î')
+        case Character('O') => Character('Ô')
+        case Character('U') => Character('Û')
+        case Character('a') => Character('â')
+        case Character('e') => Character('ê')
+        case Character('i') => Character('î')
+        case Character('o') => Character('ô')
+        case Character('u') => Character('û')
+        case Character('C') => Character('Ĉ')
+        case Character('c') => Character('ĉ')
+        case Character('G') => Character('Ĝ')
+        case Character('g') => Character('ĝ')
+        case Character('H') => Character('Ĥ')
+        case Character('h') => Character('ĥ')
+        case Character('J') => Character('Ĵ')
+        case Character('j') => Character('ĵ')
+        case Character('S') => Character('Ŝ')
+        case Character('s') => Character('ŝ')
+        case Character('W') => Character('Ŵ')
+        case Character('w') => Character('ŵ')
+        case Character('Y') => Character('Ŷ')
+        case Character('y') => Character('ŷ')
+        case Group(Nil) => Character('^')
         case Group(toks) =>
           drop_white_space(toks) match {
-            case Nil => List(Character('^'))
-            case head::tail => List(Group(fun(head):::tail))
+            case Nil => Character('^')
+            case head::tail => Group(fun(head)::tail)
           }
-        case token => List(token)// TODO .: error ??? !!!
+        case token => token// TODO .: error ??? !!!
       }
 
 //        fun(arg)// TODO .: make it know it is getting a token !!! argments class
-        fun(arg.asInstanceOf[List[Token]].head)
+        fun(arg.asInstanceOf[Token])
     }
   ))
 
-  define(new Macro("\\~",
+  define(new Macro("~",
     macro_arg,// TODO .: some sensible argument encoding ... ??
     arg => {
 
-      def fun(token: Token): List[Token] = token match
+      def fun(token: Token): Token = token match
       {// TODO ... unicode management ...
-        case Character('A') => List(Character('Ã'))
-        case Character('N') => List(Character('Ñ'))
-        case Character('O') => List(Character('Õ'))
-        case Character('a') => List(Character('ã'))
-        case Character('n') => List(Character('ñ'))
-        case Character('o') => List(Character('õ'))
-        case Character('I') => List(Character('Ĩ'))
-        case Character('i') => List(Character('ĩ'))
-        case Character('U') => List(Character('Ũ'))
-        case Character('u') => List(Character('ũ'))
-        case Group(Nil) => List(Character('~'))
+        case Character('A') => Character('Ã')
+        case Character('N') => Character('Ñ')
+        case Character('O') => Character('Õ')
+        case Character('a') => Character('ã')
+        case Character('n') => Character('ñ')
+        case Character('o') => Character('õ')
+        case Character('I') => Character('Ĩ')
+        case Character('i') => Character('ĩ')
+        case Character('U') => Character('Ũ')
+        case Character('u') => Character('ũ')
+        case Group(Nil) => Character('~')
         case Group(toks) =>
           drop_white_space(toks) match {
-            case Nil => List(Character('~'))
-            case head::tail => List(Group(fun(head):::tail))
+            case Nil => Character('~')
+            case head::tail => Group(fun(head)::tail)
           }
-        case token => List(token)// TODO .: error ??? !!!
+        case token => token// TODO .: error ??? !!!
       }
 
 //        fun(arg)// TODO .: make it know it is getting a token !!! argments class
-        fun(arg.asInstanceOf[List[Token]].head)
+        fun(arg.asInstanceOf[Token])
     }
   ))
   
   // TODO .: abbreviate this as an escapes !!!
-  define(new Macro("""\{""",
+  define(new Macro("""{""",
     Lexer.success(()),
     _ => {
-      List(Character('{'))
+      Character('{')
     }
   ))
   
-  define(new Macro("""\}""",
+  define(new Macro("""}""",
     Lexer.success(),
     _ => {
-      List(Character('}'))
+      Character('}')
     }
   ))
 
-  define(new Macro("""\#""",
+  define(new Macro("""#""",
     Lexer.success(),
     _ => {
-      List(Character('#'))
+      Character('#')
     }
   ))
 
-  define(new Macro("""\$""",
+  define(new Macro("""$""",
     Lexer.success(),
     _ => {
-      List(Character('$'))
+      Character('$')
     }
   ))
   
-  define(new Macro("""\%""",
+  define(new Macro("""%""",
     Lexer.success(),
     _ => {
-      List(Character('%'))
+      Character('%')
     }
   ))
   
-  define(new Macro("""\&""",
+  define(new Macro("""&""",
     Lexer.success(),
     _ => {
-      List(Character('&'))
+      Character('&')
     }
   ))
   
-  define(new Macro("""\_""",
+  define(new Macro("""_""",
     Lexer.success(),
     _ => {
-      List(Character('_'))
+      Character('_')
     }
   ))
   

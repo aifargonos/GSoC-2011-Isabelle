@@ -3,8 +3,7 @@ package subLaTeX
 
 
 
-import scala.collection.mutable.ListBuffer
-import scala.util.parsing.combinator.RegexParsers
+import scala.util.parsing.combinator.lexical.Scanners
 
 
 /* TODO
@@ -14,7 +13,7 @@ import scala.util.parsing.combinator.RegexParsers
  *  results
  */
 
-object Lexer extends RegexParsers
+object Lexer extends Scanners
 {
   
   def rpt(s: String, i: Int): String =
@@ -46,70 +45,73 @@ object Lexer extends RegexParsers
       }
     }
   }
-
-
-  
-  val reserved = Set('\\', '#', '{', '}')// TODO .: maybe more :. like .: \, #
-
-
-  
-//  def andStar(command:String) =
-//  {
-//    ("""\s*\*""".r?) ^^ {case Some(_) => command + "*" case None => command}
-//  }
-//
-//
-//
-  override val whiteSpace = "".r
   
   
-//  def syntactic_sugar: Parser[Any] =
-  def syntactic_sugar: Parser[List[Token]] =
+  
+  type Token = subLaTeX.Token// TEST !!! will this work like this ???
+  
+  def whitespace: Parser[Any] = success(())
+  
+  def errorToken(msg: String): Token = ErrorToken(msg)
+  
+  
+  
+  def char_err(expected: String)(e: Elem) = expected + " expected but " + e + " found"
+  
+  def escape: Parser[Elem] = acceptIf(Escape(_))(char_err("escape"))
+  def begin: Parser[Elem] = acceptIf(Begin(_))(char_err("begin"))
+  def end: Parser[Elem] = acceptIf(End(_))(char_err("end"))
+  def math: Parser[Elem] = acceptIf(Math(_))(char_err("math"))
+  def align: Parser[Elem] = acceptIf(Align(_))(char_err("align"))
+  def newline: Parser[Elem] = acceptIf(Newline(_))(char_err("newline"))
+  def param: Parser[Elem] = acceptIf(Param(_))(char_err("param"))
+  def `super`: Parser[Elem] = acceptIf(Super(_))(char_err("super"))
+  def sub: Parser[Elem] = acceptIf(Sub(_))(char_err("sub"))
+  def ignore: Parser[Elem] = acceptIf(Ignore(_))(char_err("ignore"))
+  def space: Parser[Elem] = acceptIf(Space(_))(char_err("space"))
+  def letter: Parser[Elem] = acceptIf(Letter(_))(char_err("letter"))
+  def other: Parser[Elem] = acceptIf(Other(_))(char_err("other"))
+  def active: Parser[Elem] = acceptIf(Active(_))(char_err("active"))
+  def comment: Parser[Elem] = acceptIf(Comment(_))(char_err("comment"))
+  def invalid: Parser[Elem] = acceptIf(Invalid(_))(char_err("invalid"))
+  
+  
+  
+  def syntactic_sugar: Parser[Token] =
   {// or preprocessing ??
-//    failure("TODO .: not implemented yet")// TODO .: there will be .: comments, double newline, special characters, ... here
     Syntactic_Sugar()
   }.named("syntactic sugar")
   
-  
-//  def command: Parser[Any] =
-  def command: Parser[List[Token]] =
+  def command: Parser[Token] =
   {
-    ( """\\(([@A-Za-z]+)|([^A-Za-z]))""".r >> (Macro(_)()) ) ^^
-//    {r => "Command(" + r + ")"}
-//    {r => new Compound(List(Simple(r))){override def toString = "Command(" + content.head.asInstanceOf[Simple].content + ")"}}// TODO ...
+    ( escape ~> (
+      rep1(letter | elem('@')) ^^ {r => r.mkString} |
+      acceptIf(!Letter(_))(char_err("non letter")) ^^ {_.toString}
+    ) >> (Macro(_)()) ) ^^
     {r => r}
   }.named("command")
   
-//  def white_space: Parser[Any] =
-  def white_space: Parser[List[Token]] =
+  def white_space: Parser[Token] =
   {
-    """\s+""".r ^^
-//    {r => "(" + r + ")"}
-    {r => List(White_Space(r))}// TODO .: what should I do with the white space then ??
+    rep1(space | newline) ^^
+    {r => White_Space(r.mkString)}// TODO .: what should I do with the white space then ??
   }.named("white_space")
-
-//  def char: Parser[Any] =
-  def char: Parser[List[Token]] =
+  
+  def char: Parser[Token] =
   {
-    acceptIf(x => !x.isControl && !reserved(x))(e => "" + e + " is a reserved character") ^^
-//    {r => r}
-    {r => List(Character(r))}
+    (letter | other) ^^
+    {r => Character(r)}
   }.named("char")
-
-//  def group: Parser[Any] =
-  def group: Parser[List[Token]] =
+  
+  def group: Parser[Token] =
   {
-    "{"~>body<~"}" ^^
-//    {r => "Group(" + r + ")"}
-    {r => r}
-//    "{"~>rep(token)<~"}" ^^
-//    {r => List(Group(r.flatten))}
+    begin ~> rep(token) <~ end ^^
+    {r => Group(r)}
   }.named("group")
   
   
-//  def lexem: Parser[Any] =
-  def token: Parser[List[Token]] =
-  {// FIXME !!! not everything have to return a List...
+  def token: Parser[Token] =
+  {
 //    (white_space | char | command | group) ^^
     (syntactic_sugar | white_space | char | command | group) ^^
 //    alt(alt(alt(alt(syntactic_sugar, white_space).named("then white_space"), char).named("then char"), command).named("then command"), group).named("then group") ^^
@@ -117,12 +119,10 @@ object Lexer extends RegexParsers
   }.named("lexem")
   
   
-//  def body: Parser[Any] =
   def body: Parser[List[Token]] =
   {
     rep(token) ^^
-//    {r => r.mkString(", ")}
-    {r => List(Group(r.flatten))}
+    {r => r}
   }.named("body")
   
 

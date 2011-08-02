@@ -3,6 +3,9 @@ package subLaTeX
 
 
 
+import scala.util.parsing.input.CharSequenceReader
+import scala.util.parsing.input.Reader
+
 object Test// extends Lexer
 {
 
@@ -75,10 +78,24 @@ Number1  \\\\\  23number\par123,567 123, 567 a,text a, text a  %commentComment!!
     println("Ahoj!!")
 
 
-//    val lexer = Lexer.apply()
-    println(Lexer.parseAll(Lexer.body, textInput))
-//    println(parse(p, "ploda"))
+////    val lexer = Lexer.apply()
+////    println(Lexer.parseAll(Lexer.body, textInput))
+//    println(Lexer.phrase(Lexer.body)(new CharSequenceReader(textInput)))
+////    println(parse(p, "ploda"))
     
+    val scanner = new Lexer.Scanner(textInput)
+    
+    def read_all(reader: Reader[Any]): Unit =
+    {
+      if(!reader.atEnd) {
+        print(reader.first + ", ")
+        read_all(reader.rest)
+      }
+    }
+    
+    read_all(scanner)
+    println()
+
     
     println("...caw")
   }
