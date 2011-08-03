@@ -85,17 +85,19 @@ Number1  \\\\\  23number\par123,567 123, 567 a,text a, text a  %commentComment!!
     
     val scanner = new Lexer.Scanner(textInput)
     
-    def read_all(reader: Reader[Any]): Unit =
-    {
-      if(!reader.atEnd) {
-        print(reader.first + ", ")
-        read_all(reader.rest)
-      }
-    }
+//    def read_all(reader: Reader[Any]): Unit =
+//    {
+//      if(!reader.atEnd) {
+//        print(reader.first + ", ")
+//        read_all(reader.rest)
+//      }
+//    }
+//
+//    read_all(scanner)
+//    println()
     
-    read_all(scanner)
-    println()
-
+    println(Parser.parse(scanner))
+    
     
     println("...caw")
   }

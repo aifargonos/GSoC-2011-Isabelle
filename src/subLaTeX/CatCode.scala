@@ -25,7 +25,8 @@ object CatCode
     '\0' -> Ignore,
     ' ' -> Space,
     '\t' -> Space,
-    '%' -> Comment
+    '%' -> Comment,
+    '\u007F' -> Invalid
   )
   
   
