@@ -6,49 +6,19 @@ package subLaTeX
 import scala.util.parsing.combinator.lexical.Scanners
 
 
-/* TODO
+/* DONE
  *  whiteSpace !!!
  *  group is either one char or {body}
  *  syntacticSugar
- *  results
+ *  results = tokens
  */
 
 object Lexer extends Scanners
 {
   
-  def rpt(s: String, i: Int): String =
-  {// TODO .: debug
-    import scala.collection.immutable.WrappedString
-    new WrappedString(s)*i
-  }
-
-  var ind: Int = 0// TODO .: debug
-
-  def alt[T](p: => Parser[T], q: => Parser[T]) = new Parser[T] {// TODO .: debug
-    def apply(in: Input) = {
-
-      println(rpt("\t",ind) + "alt")
-      ind += 1
-
-      println(rpt("\t",ind) + "trying p(" + p + ")")
-      p(in) match {
-        case s1 @ Success(r, _) =>
-          println(rpt("\t",ind) + "p is successful with result: " + r)
-          ind -= 1
-          s1
-        case failure =>
-          println(rpt("\t",ind) + "p failed, trying q(" + q + ")")
-          val ret = q(in)
-          println(rpt("\t",ind) + "q results in: " + (ret match{case Success(r, _) => r case failure => "failure"}) )
-          ind -= 1
-          ret
-      }
-    }
-  }
   
   
-  
-  type Token = subLaTeX.Token// TEST !!! will this work like this ???
+  type Token = subLaTeX.Token
   
   def whitespace: Parser[Any] = success(())
   
@@ -84,17 +54,17 @@ object Lexer extends Scanners
   
   def command: Parser[Token] =
   {
-    ( escape ~> (
+    escape ~> (
       rep1(letter | elem('@')) ^^ {r => r.mkString} |
       acceptIf(!Letter(_))(char_err("non letter")) ^^ {_.toString}
-    ) >> (Macro(_)()) ) ^^
-    {r => r}
+    ) ^^
+    {r => Command(r)}
   }.named("command")
   
   def white_space: Parser[Token] =
   {
     rep1(space | newline) ^^
-    {r => White_Space(r.mkString)}// TODO .: what should I do with the white space then ??
+    {r => White_Space(r.mkString)}
   }.named("white_space")
   
   def char: Parser[Token] =
@@ -112,19 +82,10 @@ object Lexer extends Scanners
   
   def token: Parser[Token] =
   {
-//    (white_space | char | command | group) ^^
-    (syntactic_sugar | white_space | char | command | group) ^^
-//    alt(alt(alt(alt(syntactic_sugar, white_space).named("then white_space"), char).named("then char"), command).named("then command"), group).named("then group") ^^
-    {r => r}
-  }.named("lexem")
+//    white_space | char | command | group
+    syntactic_sugar | white_space | char | command | group
+  }.named("token")
   
   
-  def body: Parser[List[Token]] =
-  {
-    rep(token) ^^
-    {r => r}
-  }.named("body")
-  
-
 
 }

@@ -5,6 +5,9 @@ package subLaTeX
  *  class Macro
  *  storage for macros
  *  stack for local def-s
+ *
+ *  !!! parameters should be parsed just as a text, not interpreted
+ *  and then interpreted inside code when appropriate !!!
  */
 
 class Macro(val name: String, after: Lexer.Parser[Any], code: Any => Token)
@@ -39,7 +42,7 @@ object Macro
   
   def empty(command: String) = new Macro("", Lexer.success(()),// TODO !!! sensible default !!!
 //    {_ => new Compound(List(Simple(command))){override def toString = "Command(" + content.head.asInstanceOf[Simple].content + ")"}})
-    {_ => Control(command)})// TODO .: DEBUG
+    {_ => Command(command)})// TODO .: DEBUG
   val empty: Macro = empty("")// TODO .: DEBUG
   // TODO .: default :. if command matches """\\\s+""".r , it is actually "\\ " .. use let for this
   // .. or nbsp-s will just go higher as a Control-s and be interpreted there ..
@@ -77,7 +80,7 @@ object Macro
     _ => {
       // TODO .: pop softs into local stack !!! on Syntactic level !!!
 //      List(Control("par"))
-      Control("\npar\n")// TODO DEBUG
+      Command("\npar\n")// TODO DEBUG
       // TODO .: push stuff from local stack !!! on Syntactic level !!!
       // TODO .: successive \par-s should be ignored :.
     }
@@ -86,14 +89,14 @@ object Macro
   define(new Macro("""\""",
     macro_*,
     arg => {
-      Control("""newline""")
+      Command("""newline""")
     }
   ))
   
   define(new Macro("newline",
     ignore_white_space,
     arg => {
-      Control("newlineDEBUG")// TODO DEBUG
+      Command("newlineDEBUG")// TODO DEBUG
     }
   ))
   
@@ -101,9 +104,9 @@ object Macro
     macro_* ~ macro_arg,// TODO .: some sensible argument encoding ...
     {
       case Lexer.~(None, arg) =>
-        Control("""section TODO{""" + arg + "}")// TODO ...
+        Command("""section TODO{""" + arg + "}")// TODO ...
       case Lexer.~(Some(_), arg) =>
-        Control("""section* TODO{""" + arg + "}")// TODO ...
+        Command("""section* TODO{""" + arg + "}")// TODO ...
     }
   ))
   
@@ -111,9 +114,9 @@ object Macro
     macro_* ~ macro_arg,// TODO .: some sensible argument encoding ...
     {
       case Lexer.~(None, arg) =>
-        Control("""subsection TODO{""" + arg + "}")// TODO ...
+        Command("""subsection TODO{""" + arg + "}")// TODO ...
       case Lexer.~(Some(_), arg) =>
-        Control("""subsection* TODO{""" + arg + "}")// TODO ...
+        Command("""subsection* TODO{""" + arg + "}")// TODO ...
     }
   ))
   

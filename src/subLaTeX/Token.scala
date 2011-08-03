@@ -12,9 +12,9 @@ package subLaTeX
 
 sealed abstract case class Token
 
-case class Control(content: String) extends Token
+case class Command(content: String) extends Token
 {
-//  override def toString = "Control(" + content + ")"
+//  override def toString = "Command(" + content + ")"
 }
 case class White_Space(content: String) extends Token
 {
