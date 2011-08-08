@@ -70,7 +70,7 @@ Number1  \\\\\  23number\par123,567 123, 567 a,text a, text a  %commentComment!!
     	new line
     	
 123.567 123. 567 a.text a.	text
-"""
+\\"""
 
 
   def main(args: Array[String]): Unit =
@@ -83,8 +83,10 @@ Number1  \\\\\  23number\par123,567 123, 567 a,text a, text a  %commentComment!!
 //    println(Lexer.phrase(Lexer.body)(new CharSequenceReader(textInput)))
 ////    println(parse(p, "ploda"))
     
-    val scanner = new Lexer.Scanner(textInput)
+    println(Lexer.parseAll(new CharSequenceReader(textInput)))
     
+//    val scanner = new Lexer.Scanner(textInput)
+//
 //    def read_all(reader: Reader[Any]): Unit =
 //    {
 //      if(!reader.atEnd) {
@@ -96,8 +98,12 @@ Number1  \\\\\  23number\par123,567 123, 567 a,text a, text a  %commentComment!!
 //    read_all(scanner)
 //    println()
     
-    println(Parser.parse(scanner))
-    
+//    println(Parser.parseAll(scanner))
+
+//    println("Letter: " + Letter)
+//    val cc: CatCode = CatCode.get('\\')
+//    println("Escape: " + cc.toString)
+
     
     println("...caw")
   }

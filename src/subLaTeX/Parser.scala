@@ -16,7 +16,7 @@ object Parser extends Parsers
   
   type Elen = Token
   
-  type State = Queue[Elem]
+  type State = Queue[Elem]// TODO call this context !!!
   
   
   
@@ -76,7 +76,7 @@ object Parser extends Parsers
   
   
   
-  def parse(in: Reader[Token]) =
+  def parseAll(in: Reader[Token]) =
   {
     phrase(body(Queue.empty[Elem]))(in.asInstanceOf[Reader[Elem]])
   }

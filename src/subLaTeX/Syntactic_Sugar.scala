@@ -16,22 +16,22 @@ object Syntactic_Sugar
   
 
   def comment: Parser[Token] =
-  {
+  {// TODO .: Ignore or Invalid ???
     (
-      Lexer.comment ~
-      rep(acceptIf(c => !Newline(c) && !Ignore(c))(char_err("non newline"))) ~
-      newline ~
-      rep(space)
+      is(Comment) ~
+      rep(is_not(Newline)) ~
+      is(Newline) ~
+      rep(is(Space))
     ) ~>
     Lexer.token
   }.named("comment")
 
   def implicit_par: Parser[Token] =
   {
-    newline ~ rep(space) ~ newline >>
+    is(Newline) ~ rep(is(Space)) ~ is(Newline) ^^
 //    {"Command(\n\\par\n)"}// TODO .: this should call command \par and hence eat all white space after
-//    {Control("\n\\par\n")}// TODO ...
-    {_ => Macro("par")()}// TODO ...
+    {_ => Command("\n\\par\n")}// TODO ... !!!
+//    {_ => Macro("par")()}// TODO ...
   }.named("implicit par")
   
   

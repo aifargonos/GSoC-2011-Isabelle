@@ -32,6 +32,6 @@ case class Group(content: List[Token]) extends Token
 
 case class ErrorToken(msg: String) extends Token
 {
-//  override def toString = "Control(" + content + ")"
+//  override def toString = "ErrorToken(" + msg + ")"
 }
 

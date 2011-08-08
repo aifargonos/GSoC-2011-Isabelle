@@ -70,7 +70,6 @@ object CatCode
   
   
   
-  def apply(c: Char) = get(c)
   
   
   
@@ -80,74 +79,74 @@ object CatCode
 
 sealed abstract class CatCode
 {
-  
+  def apply(c: Char): Boolean = CatCode.get(c) == this
 }
 
 
 
 object Escape extends CatCode
 {
-  def apply(c: Char) = CatCode(c) == Escape
+  override def toString = "escape"
 }
 object Begin extends CatCode
 {
-  def apply(c: Char) = CatCode(c) == Begin
+  override def toString = "begin"
 }
 object End extends CatCode
 {
-  def apply(c: Char) = CatCode(c) == End
+  override def toString = "end"
 }
 object Math extends CatCode
 {
-  def apply(c: Char) = CatCode(c) == Math
+  override def toString = "math"
 }
 object Align extends CatCode
 {
-  def apply(c: Char) = CatCode(c) == Align
+  override def toString = "align"
 }
 object Newline extends CatCode
 {
-  def apply(c: Char) = CatCode(c) == Newline
+  override def toString = "newline"
 }
 object Param extends CatCode
 {
-  def apply(c: Char) = CatCode(c) == Param
+  override def toString = "param"
 }
 object Super extends CatCode
 {
-  def apply(c: Char) = CatCode(c) == Super
+  override def toString = "super"
 }
 object Sub extends CatCode
 {
-  def apply(c: Char) = CatCode(c) == Sub
+  override def toString = "sub"
 }
 object Ignore extends CatCode
 {
-  def apply(c: Char) = CatCode(c) == Ignore
+  override def toString = "ignore"
 }
 object Space extends CatCode
 {
-  def apply(c: Char) = CatCode(c) == Space
+  override def toString = "space"
 }
 object Letter extends CatCode
 {
-  def apply(c: Char) = CatCode(c) == Letter
+  override def toString = "letter"
 }
 object Other extends CatCode
 {
-  def apply(c: Char) = CatCode(c) == Other
+  override def toString = "other"
 }
 object Active extends CatCode
 {
-  def apply(c: Char) = CatCode(c) == Active
+  override def toString = "active"
 }
 object Comment extends CatCode
 {
-  def apply(c: Char) = CatCode(c) == Comment
+  override def toString = "comment"
 }
 object Invalid extends CatCode
 {
-  def apply(c: Char) = CatCode(c) == Invalid
+  override def toString = "invalid"
 }
 
 
