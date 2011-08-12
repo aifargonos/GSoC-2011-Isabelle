@@ -4,8 +4,7 @@ package subLaTeX
 
 
 import scala.collection.immutable.Queue
-import scala.util.parsing.combinator.lexical.Scanners
-import scala.util.parsing.input.CharSequenceReader
+import scala.util.parsing.combinator.Parsers
 import scala.util.parsing.input.Reader
 
 
@@ -16,16 +15,17 @@ import scala.util.parsing.input.Reader
  *  results = tokens
  */
 
-object Lexer extends Scanners
+object Lexer extends Parsers
 {
   
   
+  type Elem = Char
   
-  type Token = subLaTeX.Token
+//  type Token = subLaTeX.Token
   
-  def whitespace: Parser[Any] = success(())
+//  def whitespace: Parser[Any] = success(())
   
-  def errorToken(msg: String): Token = ErrorToken(msg)
+//  def errorToken(msg: String): Token = ErrorToken(msg)
   
   
   
@@ -57,10 +57,10 @@ object Lexer extends Scanners
   
   
   
-  def syntactic_sugar: Parser[Token] =
-  {// or preprocessing ??
-    Syntactic_Sugar()
-  }.named("syntactic sugar")
+//  def syntactic_sugar: Parser[Token] =
+//  {// or preprocessing ??
+//    Syntactic_Sugar()
+//  }.named("syntactic sugar")
   
   def command: Parser[Token] =
   {
@@ -84,18 +84,18 @@ object Lexer extends Scanners
     {r => Character(r)}
   }.named("char")
   
-  def group: Parser[Token] =
-  {
-    is(Begin) ~> rep(token) <~ is(End) ^^
-    {r => Group(r)}
-  }.named("group")
+//  def group: Parser[Token] =
+//  {
+//    is(Begin) ~> rep(token) <~ is(End) ^^
+//    {r => Group(r)}
+//  }.named("group")
   
   
-  def token: Parser[Token] =
-  {
-//    white_space | char | command | group
-    syntactic_sugar | white_space | character | command | group
-  }.named("token")
+//  def token: Parser[Token] =
+//  {
+////    white_space | char | command | group
+//    syntactic_sugar | white_space | character | command | group
+//  }.named("token")
   
   
   
@@ -119,8 +119,7 @@ object Lexer extends Scanners
   
   def syntactic_sugar(arg: Context): Parser[Context] =
   {// or preprocessing ??
-    syntactic_sugar ^^
-    {r => arg + r}
+    Syntactic_Sugar(arg)
   }//TODO .: .named("syntactic sugar")
   
   def command(arg: Context): Parser[Context] =

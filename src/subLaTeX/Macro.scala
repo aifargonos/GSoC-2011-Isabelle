@@ -214,33 +214,24 @@ object Macro
     }
   })
   
-//  define(new Macro("textbackslash",
-//    ignore_white_space,
-//    _ => {
-//      Character('\\')
-//    }
-//  ))
-  define(new Macro("textbackslash") {
+  def char_macro(name: String, char: Char) = new Macro(name) {
     override def parser(arg: Context): Parser[Context] =
     {
       ignore_white_space ^^^
-      {arg + Character('\\')}
+      {arg + Character(char)}
     }
-  })
+  }
   
-//  define(new Macro("ldots",
-//    ignore_white_space,
-//    _ => {
-//      Character('…')// TODO ... unicode management ...
-//    }
-//  ))
-  define(new Macro("ldots") {
-    override def parser(arg: Context): Parser[Context] =
-    {
-      ignore_white_space ^^^
-      {arg + Character('…')}// TODO ... unicode management ...
-    }
-  })
+  define(char_macro("{", '{'))
+  define(char_macro("}", '}'))
+  define(char_macro("#", '#'))
+  define(char_macro("$", '$'))
+  define(char_macro("%", '%'))
+  define(char_macro("&", '&'))
+  define(char_macro("_", '_'))
+  
+  define(char_macro("textbackslash", '\\'))
+  define(char_macro("ldots", '…'))// TODO ... unicode management ...
   
   
 //  private def drop_white_space(toks: List[Token]): List[Token] = toks match {
@@ -401,105 +392,6 @@ object Macro
 //        fun(arg.asInstanceOf[Token])
 //    }
 //  ))
-  
-  // TODO .: abbreviate this as an escapes !!!
-//  define(new Macro("""{""",
-//    success(()),
-//    _ => {
-//      Character('{')
-//    }
-//  ))
-  define(new Macro("{") {
-    override def parser(arg: Context): Parser[Context] =
-    {
-      ignore_white_space ^^^
-      {arg + Character('{')}
-    }
-  })
-  
-//  define(new Macro("""}""",
-//    success(),
-//    _ => {
-//      Character('}')
-//    }
-//  ))
-  define(new Macro("}") {
-    override def parser(arg: Context): Parser[Context] =
-    {
-      ignore_white_space ^^^
-      {arg + Character('}')}
-    }
-  })
-  
-//  define(new Macro("""#""",
-//    success(),
-//    _ => {
-//      Character('#')
-//    }
-//  ))
-  define(new Macro("#") {
-    override def parser(arg: Context): Parser[Context] =
-    {
-      ignore_white_space ^^^
-      {arg + Character('#')}
-    }
-  })
-  
-//  define(new Macro("""$""",
-//    success(),
-//    _ => {
-//      Character('$')
-//    }
-//  ))
-  define(new Macro("$") {
-    override def parser(arg: Context): Parser[Context] =
-    {
-      ignore_white_space ^^^
-      {arg + Character('$')}
-    }
-  })
-  
-//  define(new Macro("""%""",
-//    success(),
-//    _ => {
-//      Character('%')
-//    }
-//  ))
-  define(new Macro("%") {
-    override def parser(arg: Context): Parser[Context] =
-    {
-      ignore_white_space ^^^
-      {arg + Character('%')}
-    }
-  })
-  
-//  define(new Macro("""&""",
-//    success(),
-//    _ => {
-//      Character('&')
-//    }
-//  ))
-  define(new Macro("&") {
-    override def parser(arg: Context): Parser[Context] =
-    {
-      ignore_white_space ^^^
-      {arg + Character('&')}
-    }
-  })
-  
-//  define(new Macro("""_""",
-//    success(),
-//    _ => {
-//      Character('_')
-//    }
-//  ))
-  define(new Macro("_") {
-    override def parser(arg: Context): Parser[Context] =
-    {
-      ignore_white_space ^^^
-      {arg + Character('#')}
-    }
-  })
   
   
   
