@@ -19,34 +19,22 @@ object Lexer extends Parsers
 {
   
   
+  
+  abstract sealed class Push
+  // for environments
+  case class NamedPush extends Push// TODO ...
+  // for explicit groups
+  case class HardPush extends Push
+  // for implicit groups
+  case class SoftPush(var begin: Token, var end: Token) extends Push
+  
+  
+  
   type Elem = Char
-  
-//  type Token = subLaTeX.Token
-  
-//  def whitespace: Parser[Any] = success(())
-  
-//  def errorToken(msg: String): Token = ErrorToken(msg)
   
   
   
   def char_err(expected: String)(e: Elem) = expected + " expected but " + e + " found"
-  
-//  val escape: Parser[Elem] = acceptIf(Escape(_))(char_err("escape"))
-//  val begin: Parser[Elem] = acceptIf(Begin(_))(char_err("begin"))
-//  val end: Parser[Elem] = acceptIf(End(_))(char_err("end"))
-//  val math: Parser[Elem] = acceptIf(Math(_))(char_err("math"))
-//  val align: Parser[Elem] = acceptIf(Align(_))(char_err("align"))
-//  val newline: Parser[Elem] = acceptIf(Newline(_))(char_err("newline"))
-//  val param: Parser[Elem] = acceptIf(Param(_))(char_err("param"))
-//  val `super`: Parser[Elem] = acceptIf(Super(_))(char_err("super"))
-//  val sub: Parser[Elem] = acceptIf(Sub(_))(char_err("sub"))
-//  val ignore: Parser[Elem] = acceptIf(Ignore(_))(char_err("ignore"))
-//  val space: Parser[Elem] = acceptIf(Space(_))(char_err("space"))
-//  val letter: Parser[Elem] = acceptIf(Letter(_))(char_err("letter"))
-//  val other: Parser[Elem] = acceptIf(Other(_))(char_err("other"))
-//  val active: Parser[Elem] = acceptIf(Active(_))(char_err("active"))
-//  val comment: Parser[Elem] = acceptIf(Comment(_))(char_err("comment"))
-//  val invalid: Parser[Elem] = acceptIf(Invalid(_))(char_err("invalid"))
   
   // TODO .. do propper character ignoration (Ignore)
   
@@ -57,51 +45,32 @@ object Lexer extends Parsers
   
   
   
-//  def syntactic_sugar: Parser[Token] =
-//  {// or preprocessing ??
-//    Syntactic_Sugar()
-//  }.named("syntactic sugar")
-  
-  def command: Parser[Token] =
-  {
-    is(Escape) ~> (
-      rep1(is(Letter) | elem('@')) ^^ {r => r.mkString} |
-//      acceptIf(c => !Letter(c) && !Ignore(c) && !Invalid(c))(char_err("non letter")) ^^ {_.toString}// TODO .: non()
-      is_not(Letter) ^^ {_.toString}
-    ) ^^
-    {r => Command(r)}
-  }.named("command")
-  
-  def white_space: Parser[Token] =
-  {
-    rep1(is(Space) | is(Newline)) ^^
-    {r => White_Space(r.mkString)}
-  }.named("white_space")
-  
-  def character: Parser[Token] =
-  {
-    (is(Letter) | is(Other)) ^^
-    {r => Character(r)}
-  }.named("char")
-  
-//  def group: Parser[Token] =
+//  def command: Parser[Token] =
 //  {
-//    is(Begin) ~> rep(token) <~ is(End) ^^
-//    {r => Group(r)}
-//  }.named("group")
-  
-  
-//  def token: Parser[Token] =
+//    is(Escape) ~> (
+//      rep1(is(Letter) | elem('@')) ^^ {r => r.mkString} |
+//      is_not(Letter) ^^ {_.toString}
+//    ) ^^
+//    {r => Command(r)}
+//  }.named("command")
+//
+//  def white_space: Parser[Token] =
 //  {
-////    white_space | char | command | group
-//    syntactic_sugar | white_space | character | command | group
-//  }.named("token")
+//    rep1(is(Space) | is(Newline)) ^^
+//    {r => White_Space(r.mkString)}
+//  }.named("white_space")
+//  
+//  def character: Parser[Token] =
+//  {
+//    (is(Letter) | is(Other)) ^^
+//    {r => Character(r)}
+//  }.named("char")
   
   
   
   /* \section{syntactic level} */
   
-  type Context = Queue[Token]
+  type Context = Tuple2[List[Push], Queue[Token]]
   
   
   
@@ -124,33 +93,55 @@ object Lexer extends Parsers
   
   def command(arg: Context): Parser[Context] =
   {
-//    command ^^
-//    {r => arg + r}// TODO .: Macro !!!
-    command >>
-    {r =>
-      val Command(cmd) = r
-      Macro(cmd)(arg)// FIXME !!! see the output !!!
-    }
-  }
+    is(Escape) ~> (
+      rep1(is(Letter) | elem('@')) ^^ {r => r.mkString} |
+      is_not(Letter) ^^ {_.toString}
+    ) >>
+    {Macro(_)(arg)}
+  }.named("command")
   
   def character(arg: Context): Parser[Context] =
   {
-    character ^^
-    {r => arg + r}
-  }
+    (is(Letter) | is(Other)) ^^
+    {r => (arg._1, arg._2 enqueue Character(r))}
+  }.named("char")
   
   def white_space(arg: Context): Parser[Context] =
   {
-    white_space ^^
-    {r => arg + r}
-  }
+    rep1(is(Space) | is(Newline)) ^^
+    {r => (arg._1, arg._2 enqueue White_Space(r.mkString))}
+  }.named("white_space")
 
-  def begin(arg: Context): Parser[Context] = is(Begin) ^^^ {arg + Command("BEGIN")}// TODO .: command
-  def end(arg: Context): Parser[Context] = is(End) ^^^ {arg + Command("END")}// TODO .: command
+  def begin(arg: Context): Parser[Context] =
+    is(Begin) ^^^ {
+//      (HardPush() :: arg._1, arg._2 enqueue Command("HardPush"))// TODO .: command
+      (HardPush() :: arg._1, arg._2)
+    }
+  def end(arg: Context): Parser[Context] =
+    is(End) ^^^ {
+      
+      def loop(arg: Context): Context =
+      {
+        arg._1 match {
+          case Nil =>
+            error("HardPush expected, but non found !!!")// TODO ...
+          case NamedPush()::stack =>
+            error("unexpected Push !!!")// TODO ...
+          case HardPush()::stack =>
+//            (stack, arg._2 enqueue Command("HardPop"))// TODO .: command
+            (stack, arg._2)
+          case SoftPush(_, end)::stack =>
+            loop( (stack, arg._2 enqueue end) )
+        }
+      }
+      
+//      (arg._1, arg._2 enqueue Command("END"))
+      loop(arg)
+    }
   def group(arg: Context): Parser[Context] =
   {
     begin(arg) >> body >> end
-  }
+  }.named("group")
   
   def body(arg: Context): Parser[Context] =
   {
@@ -163,7 +154,13 @@ object Lexer extends Parsers
   // TODO .: all these functions :.
   def parseAll(in: Reader[Char]) =
   {
-    phrase(body(Queue.empty[Token]))(in.asInstanceOf[Reader[Elem]])
+    phrase(
+      body( (Nil, Queue.empty[Token] enqueue Par_Begin()) )
+    )(in.asInstanceOf[Reader[Elem]]) match {// just to add parEND to the end ...
+      case Success( (stack, out), next ) =>
+        Success( (stack, out enqueue Par_End()), next )
+      case ns: NoSuccess => ns
+    }
   }
   
   

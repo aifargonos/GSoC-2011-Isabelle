@@ -23,31 +23,38 @@ Does it leak to another ?? YES !!!
 
 Does it go inside \{\}? {That's good question .. {YES !!!}}
 
-Does it go through an environment ??
-\begin{enumerate}\item first item\item second item\end{enumerate}
-YES !!!
+%Does it go through an environment ??
+%\begin{enumerate}\item first item\item second item\end{enumerate}
+%YES !!!
 
 How do I turn it off ?? \normalfont Like this !!
 
 {Does it leak out of a \bfseries group??} NO!!
 
-Does it leak out of an environment??
-\begin{enumerate}\item first item\item second \bfseries item\end{enumerate}
-NO !!
+%Does it leak out of an environment??
+%\begin{enumerate}\item first item\item second \bfseries item\end{enumerate}
+%NO !!
 
 {What will paragraph do \bfseries inside \par a group } together with some font ??
+
+{What will section do \itshape inside \subsection*{subsub\Large section} a group } together with some font ??
+
+{What will textbf do \itshape inside \textbf{subsub\Large section} a group } together with some font ??
+
+\bfseries {Normalfont inside a \normalfont group} does this \normalfont% TODO .: this does not work yet !!!
 
 
 
 \section{Special chars ..}
 
-Eat this .: \"a \~a \'a \^a \^{aa} (\~{ 	n \ldots\newline baobab }) \ldots    \ \ \ and nbsp-s\~\textbackslash
+%Eat this .: \"a \~a \'a \^a \^{aa} (\~{ 	n \ldots\newline baobab }) \ldots    \ \ \ and nbsp-s\~\textbackslash
 
 Backslash sometimes cancels newline
 \
 like this \ldots but that may be just nbsp
 
-Reserved chars .: \# \$ \% \^{} \& \_ \{ \} \~{} \textbackslash
+%Reserved chars .: \# \$ \% \^{} \& \_ \{ \} \~{} \textbackslash
+Reserved chars .: \# \$ \%  \& \_ \{ \}  \textbackslash
 
 Not reserved chars .: @ ?? [ ] \par and some unicodes .: ∀ αβγ あ 日
 
@@ -63,6 +70,12 @@ Number1  \\*  23number
 
 Number1  \\  23number
 
+Number1  \newline  23number
+
+Number1  \""" + "\n" + """  23number
+
+Number1  \""" + "\t" + """  23number
+
 
 
 
@@ -70,6 +83,9 @@ Number1  \\\\\  23number\par123,567 123, 567 a,text a, text a  %commentComment!!
     	new line
     	
 123.567 123. 567 a.text a.	text
+
+\section \ldots
+
 \\"""
 
 
