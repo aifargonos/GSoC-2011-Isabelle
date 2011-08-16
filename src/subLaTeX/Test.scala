@@ -3,6 +3,7 @@ package subLaTeX
 
 
 
+import java.io.PrintStream
 import scala.util.parsing.input.CharSequenceReader
 import scala.util.parsing.input.Reader
 
@@ -56,7 +57,7 @@ like this \ldots but that may be just nbsp
 %Reserved chars .: \# \$ \% \^{} \& \_ \{ \} \~{} \textbackslash
 Reserved chars .: \# \$ \%  \& \_ \{ \}  \textbackslash
 
-Not reserved chars .: @ ?? [ ] \par and some unicodes .: ∀ αβγ あ 日
+Not reserved chars .: @ ?? [ ] \par and some unicodes .: %∀ αβγ あ 日
 
 Some quotes .: ``quotes'' ,,quotes'' "quotes" <<quotes>> `quotes' `'`'`; I will most probably ignore this \ldots
 
@@ -86,7 +87,7 @@ Number1  \\\\\  23number\par123,567 123, 567 a,text a, text a  %commentComment!!
 
 \section \ldots
 
-\\"""
+\ldots"""
 
 
   def main(args: Array[String]): Unit =
@@ -100,6 +101,21 @@ Number1  \\\\\  23number\par123,567 123, 567 a,text a, text a  %commentComment!!
 ////    println(parse(p, "ploda"))
     
     println(Lexer.parseAll(new CharSequenceReader(textInput)))
+//    println()
+//    println(SubLaTeX(textInput))
+    val out = new PrintStream("out.html")
+    out.print("""<html>
+<head>
+  <meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+  <title>subLaTeX out</title>
+</head>
+<body>
+""")
+    out.print(SubLaTeX(textInput))
+    out.print("""
+</body>
+</html>
+""")
     
 //    val scanner = new Lexer.Scanner(textInput)
 //

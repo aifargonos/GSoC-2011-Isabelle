@@ -15,8 +15,14 @@ object Syntactic_Sugar
   }
   
   
+  def implicit_par(arg: Context): Parser[Context] =
+  {
+    ( is(Newline) ~ rep(is(Space)) ~ is(Newline) ) ~>
+    {Macro("par")(arg)}
+  }.named("implicit par")
+  
   def comment(arg: Context): Parser[Context] =
-  {// TODO .: Ignore or Invalid ???
+  {// TODO .: Ignore or Invalid ???// TODO .: what if there should be an implicit par ??
     (
       is(Comment) ~
       rep(is_not(Newline)) ~
@@ -26,16 +32,10 @@ object Syntactic_Sugar
     {arg}
   }.named("comment")
   
-  def implicit_par(arg: Context): Parser[Context] =
-  {
-    ( is(Newline) ~ rep(is(Space)) ~ is(Newline) ) ~>
-    {Macro("par")(arg)}
-  }.named("implicit par")
-  
   
   def syntactic_sugar(arg: Context): Parser[Context] =
   {// or preprocessing ??
-    comment(arg) | implicit_par(arg)
+    implicit_par(arg) | comment(arg)
   }.named("syntactic sugar")
   
   

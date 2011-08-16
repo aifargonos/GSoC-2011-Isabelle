@@ -71,12 +71,17 @@ object Macro
       override def parser(arg: Context): Parser[Context] = macro(arg)
     })
   }
-
   
   
-  // standard argument parsing
+  
+  // FIXME !!! what if this is an implicit par ?? !!!
   val ignore_white_space =
-    rep(is(Space)) ~ opt(is(Newline) ~ rep(is(Space)))
+//    rep(is(Space)) ~ opt( is(Newline) ~ rep(is(Space)) )
+    rep(is(Space))
+  // TODO .: I should do it this way .:
+  def ignore_white_space(arg: Context): Parser[Context] =
+    syntactic_sugar(arg) |
+    rep(is(Space)) ~ opt( is(Newline) ~ rep(is(Space)) ) ^^^ {arg}
   
 //  val macro_arg = ignore_white_space ~> token// TODO !!! this should probably be non-Control token !!! ??
 //  def macro_arg(arg: Context) = ignore_white_space ~> token ^^^ arg// FIXME !!! differently !!!
@@ -155,7 +160,13 @@ object Macro
       {(arg._1, arg._2 enqueue Line_Break())}
     }
   })
-  alias("""\""", "newline")
+  define(new Macro("""\""") {
+    override def parser(arg: Context): Parser[Context] =
+    {
+      macro_* ^^^
+      {(arg._1, arg._2 enqueue Line_Break())}
+    }
+  })
   
   define(new Macro(" ") {
     override def parser(arg: Context): Parser[Context] =
@@ -235,6 +246,7 @@ object Macro
       }
     }
   })
+  // TODO .: \normalsize
   
   define(new Macro("textbf") {// TODO .: define this as an user macro !!!
     override def parser(arg: Context): Parser[Context] =
@@ -341,12 +353,25 @@ object Macro
       }
     }
   }
-  
   define(section_macro("section"))
   define(section_macro("subsection"))
   define(section_macro("subsubsection"))
   
   
+  def escape_macro(char: Char) = new Macro(char.toString) {
+    override def parser(arg: Context): Parser[Context] =
+    {
+      success{(arg._1, arg._2 enqueue Character(char))}
+    }
+  }
+  define(escape_macro('{'))
+  define(escape_macro('}'))
+  define(escape_macro('#'))
+  define(escape_macro('$'))
+  define(escape_macro('%'))
+  define(escape_macro('&'))
+  define(escape_macro('_'))
+
   def char_macro(name: String, char: Char) = new Macro(name) {
     override def parser(arg: Context): Parser[Context] =
     {
@@ -354,15 +379,6 @@ object Macro
       {(arg._1, arg._2 enqueue Character(char))}
     }
   }
-  
-  define(char_macro("{", '{'))
-  define(char_macro("}", '}'))
-  define(char_macro("#", '#'))
-  define(char_macro("$", '$'))
-  define(char_macro("%", '%'))
-  define(char_macro("&", '&'))
-  define(char_macro("_", '_'))
-  
   define(char_macro("textbackslash", '\\'))
   define(char_macro("ldots", '…'))// TODO ... unicode management ...
   

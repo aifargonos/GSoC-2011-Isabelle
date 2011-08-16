@@ -5,6 +5,7 @@ package subLaTeX
 
 import scala.collection.immutable.Queue
 import scala.util.parsing.combinator.Parsers
+import scala.util.parsing.input.CharSequenceReader
 import scala.util.parsing.input.Reader
 
 
@@ -152,17 +153,23 @@ object Lexer extends Parsers
   
   
   // TODO .: all these functions :.
-  def parseAll(in: Reader[Char]) =
+  def parseAll(in: Reader[Char]): Seq[Token] =
   {
     phrase(
       body( (Nil, Queue.empty[Token] enqueue Par_Begin()) )
     )(in.asInstanceOf[Reader[Elem]]) match {// just to add parEND to the end ...
       case Success( (stack, out), next ) =>
-        Success( (stack, out enqueue Par_End()), next )
-      case ns: NoSuccess => ns
+        if(!stack.isEmpty) error("Stack is not empty at the end of parsing !!!")// TODO ...
+        else out enqueue Par_End()
+      case ns: NoSuccess => error(ns.toString)
     }
   }
   
+  def parseAll(in: CharSequence): Seq[Token] =
+  {
+    parseAll(new CharSequenceReader(in))
+  }
+
   
   
 }
