@@ -25,6 +25,8 @@ object SubLaTeX
     case Bf_End() => "<!--end bold--></span>"
     case It_Begin() => """<span style="font-style:italic;">"""// TODO separate css ??
     case It_End() => "<!--end italic--></span>"
+//    case Normalfont_Begin() => """<span style="font-family:serif;font-style:normal;font-weight:normal;">"""// TODO separate css ??
+//    case Normalfont_End() => "<!--end normal--></span>"
     case Large_Begin() => """<span style="font-size:x-large;">"""// TODO separate css ??
     case Large_End() => "<!--end size--></span>"
   }

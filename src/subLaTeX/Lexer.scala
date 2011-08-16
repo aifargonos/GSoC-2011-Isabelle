@@ -23,9 +23,9 @@ object Lexer extends Parsers
   
   abstract sealed class Push
   // for environments
-  case class NamedPush extends Push// TODO ...
+  case class NamedPush() extends Push// TODO ...
   // for explicit groups
-  case class HardPush extends Push
+  case class HardPush() extends Push
   // for implicit groups
   case class SoftPush(var begin: Token, var end: Token) extends Push
   
@@ -127,7 +127,7 @@ object Lexer extends Parsers
           case Nil =>
             error("HardPush expected, but non found !!!")// TODO ...
           case NamedPush()::stack =>
-            error("unexpected Push !!!")// TODO ...
+            error("unexpected NamedPush !!!")// TODO ...
           case HardPush()::stack =>
 //            (stack, arg._2 enqueue Command("HardPop"))// TODO .: command
             (stack, arg._2)
@@ -158,9 +158,25 @@ object Lexer extends Parsers
     phrase(
       body( (Nil, Queue.empty[Token] enqueue Par_Begin()) )
     )(in.asInstanceOf[Reader[Elem]]) match {// just to add parEND to the end ...
-      case Success( (stack, out), next ) =>
-        if(!stack.isEmpty) error("Stack is not empty at the end of parsing !!!")// TODO ...
-        else out enqueue Par_End()
+      case Success( arg, next ) =>
+        
+        def loop(arg: Context): Context =
+        {
+          arg._1 match {
+            case Nil =>
+              arg
+            case NamedPush()::stack =>
+              error("unexpected NamedPush !!!")// TODO ...
+            case HardPush()::stack =>
+              error("unexpected HardPush !!!")// TODO ...
+            case SoftPush(_, end)::stack =>
+              loop( (stack, arg._2 enqueue end) )
+          }
+        }
+        val (stack, out) = loop(arg)
+        
+        if(!stack.isEmpty) error("Stack is not empty at the end of parsing !!!\nIt contains: " + stack) else
+        out enqueue Par_End()
       case ns: NoSuccess => error(ns.toString)
     }
   }

@@ -40,25 +40,29 @@ case class Unknown(command: String) extends Command
 {
   override def toString = "Command(" + command + ")"
 }
-case class Par_Begin extends Command
-case class Par_End extends Command
+case class Par_Begin() extends Command
+case class Par_End() extends Command
 
-case class Line_Break extends Command
-case class NBSP extends Command
+case class Line_Break() extends Command
+case class NBSP() extends Command
 
-case class Section_Begin extends Command
-case class Section_End extends Command
-case class Subsection_Begin extends Command
-case class Subsection_End extends Command
-case class Subsubsection_Begin extends Command
-case class Subsubsection_End extends Command
+case class Section_Begin() extends Command
+case class Section_End() extends Command
+case class Subsection_Begin() extends Command
+case class Subsection_End() extends Command
+case class Subsubsection_Begin() extends Command
+case class Subsubsection_End() extends Command
 
-case class Bf_Begin extends Command
-case class Bf_End extends Command
-case class It_Begin extends Command
-case class It_End extends Command
+sealed abstract class Font_Command extends Command
+case class Bf_Begin() extends Font_Command
+case class Bf_End() extends Font_Command
+case class It_Begin() extends Font_Command
+case class It_End() extends Font_Command
+//case class Normalfont_Begin extends Font_Command
+//case class Normalfont_End extends Font_Command
 
-case class Large_Begin extends Command
-case class Large_End extends Command
+sealed abstract class Font_Size_Command extends Command
+case class Large_Begin() extends Font_Size_Command
+case class Large_End() extends Font_Size_Command
 
 

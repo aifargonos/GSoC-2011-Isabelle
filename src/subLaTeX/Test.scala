@@ -18,7 +18,7 @@ object Test// extends Lexer
   val textInput = """
 \subsection{fonts and \{\}}
 
-First try \bfseries bfseries in one paragraph
+First try {\bfseries bfseries in one paragraph
 
 Does it leak to another ?? YES !!!
 
@@ -28,7 +28,7 @@ Does it go inside \{\}? {That's good question .. {YES !!!}}
 %\begin{enumerate}\item first item\item second item\end{enumerate}
 %YES !!!
 
-How do I turn it off ?? \normalfont Like this !!
+How do I turn it off ?? }Like this !!
 
 {Does it leak out of a \bfseries group??} NO!!
 
@@ -42,7 +42,7 @@ How do I turn it off ?? \normalfont Like this !!
 
 {What will textbf do \itshape inside \textbf{subsub\Large section} a group } together with some font ??
 
-\bfseries {Normalfont inside a \normalfont group} does this \normalfont% TODO .: this does not work yet !!!
+{\bfseries {{Normalfont \Large inside a }group} does this }% TODO .: this does not work yet !!!
 
 
 
@@ -87,7 +87,7 @@ Number1  \\\\\  23number\par123,567 123, 567 a,text a, text a  %commentComment!!
 
 \section \ldots
 
-\ldots"""
+\bfseries\ldots"""
 
 
   def main(args: Array[String]): Unit =

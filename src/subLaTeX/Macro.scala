@@ -143,12 +143,11 @@ object Macro
          */
         
         val (stack, out, local) = pop(arg._1, arg._2, Nil)
-        val out_with_par = out enqueue White_Space("\n") enqueue Par_End() enqueue Par_Begin() enqueue White_Space("\n")
+//        val out_with_par = out enqueue White_Space("\n") enqueue Par_End() enqueue Par_Begin() enqueue White_Space("\n")
+        val out_with_par = out enqueue Par_End() enqueue Par_Begin()
         val (s, o, l) = push(stack, out_with_par, local)
         
         (s, o)
-//        (arg._1, o)// TODO DEBUG
-//        (arg._1, arg._2 enqueue Command("\npar\n"))
       }
     }
   })
@@ -217,36 +216,60 @@ object Macro
      }
     }
   })
-
-  define(new Macro("normalfont") {// TODO .: this also needs some stacking .. to work inside a group
-    override def parser(arg: Context): Parser[Context] =
-    {
-      ignore_white_space ^^^
-      {
-        /*
-         * pop all font-formating SoftPush-es
-         */
-        
-        def loop(arg: Context): Context =
-        {
-          arg._1 match {
-            case Nil =>
-              arg
-            case NamedPush()::stack =>
-              arg
-            case HardPush()::stack =>
-              arg
-            case SoftPush(_, end)::stack =>
-              loop( (stack, arg._2 enqueue end) )// TODO .: only font-formating SoftPush-es !!!
-          }
-        }
-        
-        loop(arg)
-//        (SoftPush(Command("bfseries"))::arg._1, arg._2 enqueue Command("bfseries"))
-      }
-    }
-  })
-  // TODO .: \normalsize
+  
+//  define(new Macro("normalfont") {// TODO .: this also needs some stacking .. to work inside a group
+//    override def parser(arg: Context): Parser[Context] =
+//    {
+//      ignore_white_space ^^^
+//      {
+//        /*
+//         * pop all font-formating SoftPush-es
+//         *
+//         * TODO !!!
+//         *  this should cancel all Font_Commands in its scope,
+//         *  so all cancelled commands must be back after the scope
+//         *  .: do this by SoftPush(begin, end) !!!
+//         */
+//
+//        def loop(arg: Context): Context =
+//        {
+//          arg._1 match {
+//            case Nil =>
+//              arg
+//            case NamedPush()::stack =>
+//              arg
+//            case HardPush()::stack =>
+//              arg
+//            case SoftPush(start, end: Font_Command)::rest =>
+//              val (stack, out) = loop( (rest, arg._2 enqueue end) )// TEST !!!
+//              (stack, out)
+////              (SoftPush(end, start)::stack, out)// TODO .: something like this !!!
+//                // TODO .: pop of HardPush should restore the stack as it was before the HardPush
+//                // TODO .: this should be solved by better group management
+//            case (sp @ SoftPush(_, _))::rest =>
+//              val (stack, out) = loop( (rest, arg._2) )
+//              (sp::stack, out)
+//          }
+//        }
+//
+//        loop(arg)
+//      }
+//    }
+//  })
+//  define(new Macro("normalfont") {
+//    override def parser(arg: Context): Parser[Context] =
+//    {
+//      ignore_white_space ^^^
+//      {
+//        (
+//          SoftPush(Normalfont_Begin(), Normalfont_End())::arg._1,
+//          arg._2 enqueue Normalfont_Begin()
+//        )
+//     }
+//    }
+//  })
+//
+//  // TODO .: \normalsize
   
   define(new Macro("textbf") {// TODO .: define this as an user macro !!!
     override def parser(arg: Context): Parser[Context] =
