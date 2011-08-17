@@ -48,7 +48,7 @@ object Macro
   // .. or nbsp-s will just go higher as a Control-s and be interpreted there ..
   // TODO !!! .: make reflexive Control-s explicit !!!
   
-  val storage = scala.collection.mutable.Map.empty[String, Macro]
+  private val storage = scala.collection.mutable.Map.empty[String, Macro]
 
   def apply(name: String): Macro =
   {
@@ -337,7 +337,30 @@ object Macro
         // according to macro_* do the counters and numbering
         val context = (Nil, the_* match {
           case Some(_) => out_with_begin
-          case None => out_with_begin enqueue Unknown(name + "NUMBER")// TODO commands ...
+          case None =>
+
+            val number = level match {
+              case "section" =>
+                val sc = Counter("section")
+                sc.step
+                val num = sc.value.toString
+                for(c <- num) yield Character(c)
+              case "subsection" =>
+                val sc = Counter("section")
+                val ssc = Counter("subsection")
+                ssc.step
+                val num = sc.value.toString + "." + ssc.value
+                for(c <- num) yield Character(c)
+              case "subsubsection" =>
+                val sc = Counter("section")
+                val ssc = Counter("subsection")
+                val sssc = Counter("subsubsection")
+                sssc.step
+                val num = sc.value.toString + "." + ssc.value + "." + sssc.value
+                for(c <- num) yield Character(c)
+            }// TODO .: these cases are magic constants !!
+            
+            out_with_begin enqueue number enqueue NBSP() enqueue NBSP()
         })
 
         // parse the macro argument with an empty local stack

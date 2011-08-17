@@ -86,6 +86,17 @@ Number1  \\\\\  23number\par123,567 123, 567 a,text a, text a  %commentComment!!
 123.567 123. 567 a.text a.	text
 
 \section \ldots
+\section{three}
+\subsection{four}
+\subsection{five}
+\subsubsection{six}
+\subsection{seven}
+\subsubsection{eight}
+\section{nine}
+\subsection{ten}
+\subsection{eleven}
+\subsection{twelve}
+\section{thirteen}
 
 \bfseries\ldots"""
 

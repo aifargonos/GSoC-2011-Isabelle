@@ -47,6 +47,7 @@ object SubLaTeX
   
   def apply(in: CharSequence): CharSequence =
   {
+    Counter.reset_all()
     output(Lexer.parseAll(in))
   }
   
