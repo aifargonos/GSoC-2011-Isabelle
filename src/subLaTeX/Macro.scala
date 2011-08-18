@@ -2,12 +2,10 @@
 package subLaTeX
 
 /* TODO .:
- *  class Macro
  *  storage for macros
+ *    checking redefinitions !!
  *  stack for local def-s
- *
- *  !!! parameters should be parsed just as a text, not interpreted
- *  and then interpreted inside code when appropriate !!!
+ * 
  */
 
 import scala.collection.immutable.Queue
@@ -28,44 +26,40 @@ abstract class Macro(val name: String)
 
 object Macro
 {
-  /* TODO
-   *  storage for macros
-   *    defining
-   *    removing ??
-   *  define basic macros !!!
-   */
+  
   
   import Lexer._
   
-  def empty(command: String) = new Macro("") {
+  
+  
+  def empty(command: String) = new Macro(command) {
     override def parser(arg: Context): Parser[Context] =
     {
-      success((arg._1, arg._2 enqueue Unknown(command)))// TODO .: DEBUG
+      success((arg._1, arg._2 enqueue Unknown(command)))
     }
   }
-  val empty: Macro = empty("")// TODO .: DEBUG
-  // TODO .: default :. if command matches """\\\s+""".r , it is actually "\\ " .. use let for this
-  // .. or nbsp-s will just go higher as a Control-s and be interpreted there ..
-  // TODO !!! .: make reflexive Control-s explicit !!!
+  val empty: Macro = empty("")
+  
+  
   
   private val storage = scala.collection.mutable.Map.empty[String, Macro]
-
+  
   def apply(name: String): Macro =
   {
     storage.getOrElse(name, empty(name))
   }
   
   def define(macro: Macro) =
-  {// TODO .: check redefinitions !!!
+  {
     storage.put(macro.name, macro)
   }
   
-  def alias(alias: String, for_macro: String) = define(new Macro(alias) {// TODO ??
+  def alias(alias: String, for_macro: String) = define(new Macro(alias) {
     override def parser(arg: Context): Parser[Context] = Macro(for_macro)(arg)
   })
   
   def let(new_name: String, old_name: String) =
-  {// TODO ?? check how closures work !!
+  {// TEST ...
     val macro = Macro(old_name)
     define(new Macro(new_name) {
       override def parser(arg: Context): Parser[Context] = macro(arg)
@@ -74,21 +68,17 @@ object Macro
   
   
   
-  // FIXME !!! what if this is an implicit par ?? !!!
   val ignore_white_space =
-//    rep(is(Space)) ~ opt( is(Newline) ~ rep(is(Space)) )
+//    rep(is(Space)) ~ opt( is(Newline) ~ rep(is(Space)) )// TODO !! what if this is an implicit par
     rep(is(Space))
-  // TODO .: I should do it this way .:
-  def ignore_white_space(arg: Context): Parser[Context] =
-    syntactic_sugar(arg) |
-    rep(is(Space)) ~ opt( is(Newline) ~ rep(is(Space)) ) ^^^ {arg}
-  
-//  val macro_arg = ignore_white_space ~> token// TODO !!! this should probably be non-Control token !!! ??
-//  def macro_arg(arg: Context) = ignore_white_space ~> token ^^^ arg// FIXME !!! differently !!!
+//  def ignore_white_space(arg: Context): Parser[Context] =
+//    syntactic_sugar(arg) |
+//    rep(is(Space)) ~ opt( is(Newline) ~ rep(is(Space)) ) ^^^ {arg}
   
   val macro_* = ignore_white_space ~> opt(elem('*'))
-//  def macro_*(arg: Context) = ignore_white_space ~> opt(elem('*')) ^^^ arg// FIXME !!! differently !!!
-  
+
+  // TODO .: macro_arg
+
   
 
   /**
@@ -103,7 +93,6 @@ object Macro
       case NamedPush()::rest =>
         (stack, out, local)
       case (p @ HardPush())::rest =>
-//      pop(rest, out enqueue Command("HardPop"), p::local)
         pop(rest, out, p::local)
       case (p @ SoftPush(_, end))::rest =>
         pop(rest, out enqueue end, p::local)
@@ -120,9 +109,8 @@ object Macro
       case Nil =>
         (stack, out, local)
       case NamedPush()::rest =>
-        error("unexpected NamedPush")// TODO ..
+        throw new StackException("unexpected NamedPush")
       case (p @ HardPush())::rest =>
-//      push(p::stack, out enqueue Command("HardPush"), rest)
         push(p::stack, out, rest)
       case (p @ SoftPush(begin, _))::rest =>
         push(p::stack, out enqueue begin, rest)
@@ -132,8 +120,8 @@ object Macro
   define(new Macro("par") {
     override def parser(arg: Context): Parser[Context] =
     {
-      rep(is(Space) | is(Newline)) ^^^
-      {
+      rep(is(Space) | is(Newline)) >>
+      {_ =>
         /* DONE .:
          *  pop until NamedPush or everything, output all SoftPush-es and stack it to a local stack
          *  new par
@@ -141,13 +129,15 @@ object Macro
          * DONE .:
          *  output soft end / soft start
          */
-        
-        val (stack, out, local) = pop(arg._1, arg._2, Nil)
-//        val out_with_par = out enqueue White_Space("\n") enqueue Par_End() enqueue Par_Begin() enqueue White_Space("\n")
-        val out_with_par = out enqueue Par_End() enqueue Par_Begin()
-        val (s, o, l) = push(stack, out_with_par, local)
-        
-        (s, o)
+        try {
+          val (stack, out, local) = pop(arg._1, arg._2, Nil)
+          val out_with_par = out enqueue Par_End() enqueue Par_Begin()
+          val (s, o, l) = push(stack, out_with_par, local)
+
+          success( (s, o) )
+        } catch {
+          case e: StackException => failure(e.getMessage)
+        }
       }
     }
   })
@@ -287,15 +277,15 @@ object Macro
         command(arg) |
         character(arg) |
         is(Begin) ~> body(arg) <~ is(End)
-      ) ^^ {r =>
+      ) >> {r =>
 
         def loop(arg: Context): Context =
         {
           arg._1 match {
             case Nil =>
-              error("HardPush expected, but non found !!!")// TODO ...
+              throw new StackException("HardPush expected, but non found")
             case NamedPush()::stack =>
-              error("unexpected Push !!!")// TODO ...
+              throw new StackException("Unexpected NamedPush")
             case HardPush()::stack =>
               (stack, arg._2)
             case SoftPush(_, end)::stack =>
@@ -303,13 +293,17 @@ object Macro
           }
         }
 
-        loop(r)
+        try {
+          success(loop(r))
+        } catch {
+          case e: StackException => failure(e.getMessage)
+        }
       }
     }
   })
   
   
-  def section_macro(level: String) = new Macro(level) {// TODO .: other arguments, like level !!!
+  def section_macro(level: String) = new Macro(level) {// TODO .: better levels
     override def parser(arg: Context): Parser[Context] =
     {
       /* This way .:
@@ -330,7 +324,7 @@ object Macro
         case "section" => Section_Begin()
         case "subsection" => Subsection_Begin()
         case "subsubsection" => Subsubsection_Begin()
-      })// TODO .: these cases are magic constants !!
+      })// TODO .: better levels
 
       macro_* <~ ignore_white_space >> {the_* =>
 
@@ -358,13 +352,13 @@ object Macro
                 sssc.step
                 val num = sc.value.toString + "." + ssc.value + "." + sssc.value
                 for(c <- num) yield Character(c)
-            }// TODO .: these cases are magic constants !!
+            }// TODO .: better levels
             
             out_with_begin enqueue number enqueue NBSP() enqueue NBSP()
         })
 
         // parse the macro argument with an empty local stack
-        ( command(context) | character(context) | group(context) ) ^^
+        ( command(context) | character(context) | group(context) ) >>
         {r =>
           // finalise the local stack
           def loop(arg: Context): Context =
@@ -373,27 +367,33 @@ object Macro
               case Nil =>
                 arg
               case NamedPush()::stack =>
-                error("Unexpected NamedPush")// TODO ...
+                throw new StackException("Unexpected NamedPush")
               case HardPush()::stack =>
-                error("Unexpected HardPush")// TODO ...
+                throw new StackException("Unexpected HardPush")
               case SoftPush(_, end)::stack =>
                 loop( (stack, arg._2 enqueue end) )
             }
           }
-          val (local, out) = loop(r)
-          require(local.isEmpty)// TODO ??
+          try {
+            val (local, out) = loop(r)
+            if(!local.isEmpty)
+              throw new StackException("Local stack is not empty at the end of parsing\n" +
+                "It contains: " + local)
 
-          // END command (tag/style)
-          val out_with_end = out enqueue (level match {// TODO .: these cases are magic constants !!
-            case "section" => Section_End()
-            case "subsection" => Subsection_End()
-            case "subsubsection" => Subsubsection_End()
-          }) enqueue Par_Begin()
+            // END command (tag/style)
+            val out_with_end = out enqueue (level match {// TODO .: better levels
+              case "section" => Section_End()
+              case "subsection" => Subsection_End()
+              case "subsubsection" => Subsubsection_End()
+            }) enqueue Par_Begin()
 
-          // restore the original stack ...
-          val (s, o, l) = push(stack, out_with_end, popped)
+            // restore the original stack ...
+            val (s, o, l) = push(stack, out_with_end, popped)
 
-          (s, o)
+            success( (s, o) )
+          } catch {
+            case e: StackException => failure(e.getMessage)
+          }
         }
 
       }

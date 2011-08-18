@@ -2,6 +2,12 @@
 package subLaTeX
 
 
+/*
+ * TODO .:
+ *  make proper preprocessing as a CharSequenceReader doing substitutions
+ *  and do implicit_par in it
+ *  move comment to Lexer
+ */
 
 object Syntactic_Sugar
 {
@@ -22,7 +28,7 @@ object Syntactic_Sugar
   }.named("implicit par")
   
   def comment(arg: Context): Parser[Context] =
-  {// TODO .: Ignore or Invalid ???// TODO .: what if there should be an implicit par ??
+  {// TODO .: what if there should be an implicit par ?? .: si above
     (
       is(Comment) ~
       rep(is_not(Newline)) ~

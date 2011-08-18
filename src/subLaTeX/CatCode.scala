@@ -33,8 +33,6 @@ object CatCode
   
   def get(c: Char): CatCode =
   {
-//    // Other
-//    catcode.getOrElse(c, Other)
     catcode.get(c) match {
       case Some(cc) => cc
       // Other, Ignore
@@ -67,9 +65,6 @@ object CatCode
   
   // TODO "active"
   // TODO "invalid"
-  
-  
-  
   
   
   
