@@ -6,6 +6,11 @@ Description
 This is GSoC project for Isabelle.
 See http://socghop.appspot.com/gsoc/project/google/gsoc2011/aifargonos/13001
 
+Contains the first version of a LaTeX interpreter in the directory
+src/subLaTeX/ . The interpreter outputs HTML.
+It is not complete yet, it does not do environments and the design of some parts
+will have to be changed. But background for most macros is ready. 
+
 
 ============
 Dependencies
