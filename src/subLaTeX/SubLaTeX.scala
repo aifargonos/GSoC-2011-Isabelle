@@ -14,6 +14,17 @@ object SubLaTeX
   
   
   
+  private def character2string(c: Char) =
+  c match {
+    case '&' => "&amp;"
+    case '<' => "&lt;"
+    case '>' => "&gt;"
+//    case '\'' => "&apos;"
+//    case '"' => "&quot;"
+    case c if c < 127 => c.toString// ASCII
+    case c => "&#" + c.toInt + ";"// UTF-8
+  }
+
   private def command2string(command: Command) =
   command match {
     case Unknown(c) =>
@@ -44,7 +55,7 @@ object SubLaTeX
     val ret = for(token <- tokens) yield {// TODO use buffer
       token match {
         case White_Space(s) => s
-        case Character(c) => c.toString// !!! TODO !!! unicode handling here !!!
+        case Character(c) => character2string(c)
         case c: Command => command2string(c)
       }
     }

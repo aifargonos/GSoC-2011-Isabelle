@@ -57,7 +57,7 @@ like this \ldots but that may be just nbsp
 %Reserved chars .: \# \$ \% \^{} \& \_ \{ \} \~{} \textbackslash
 Reserved chars .: \# \$ \%  \& \_ \{ \}  \textbackslash
 
-Not reserved chars .: @ ?? [ ] \par and some unicodes .: %∀ αβγ あ 日
+Not reserved chars .: @ ?? [ ] \par and some unicodes .: ∀ αβγ あ 日
 
 Some quotes .: ``quotes'' ,,quotes'' "quotes" <<quotes>> `quotes' `'`'`; I will most probably ignore this \ldots
 
@@ -103,7 +103,6 @@ Number1  \\\\\  23number\par123,567 123, 567 a,text a, text a  %commentComment!!
 
   def main(args: Array[String]): Unit =
   {
-    println("Ahoj!!")
 
 
 ////    val lexer = Lexer.apply()
@@ -117,8 +116,8 @@ Number1  \\\\\  23number\par123,567 123, 567 a,text a, text a  %commentComment!!
     val out = new PrintStream("out.html")
     out.print("""<html>
 <head>
-  <meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
-  <title>subLaTeX out</title>
+<!--  <meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />-->
+  <title>subLaTeX test</title>
 </head>
 <body>
 """)
@@ -148,7 +147,6 @@ Number1  \\\\\  23number\par123,567 123, 567 a,text a, text a  %commentComment!!
 //    println("Escape: " + cc.toString)
 
     
-    println("...caw")
   }
 
 }

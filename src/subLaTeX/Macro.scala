@@ -426,7 +426,7 @@ object Macro
     }
   }
   define(char_macro("textbackslash", '\\'))
-  define(char_macro("ldots", '…'))// TODO ... unicode management ...
+  define(char_macro("ldots", '…'))
   
   
 //  private def drop_white_space(toks: List[Token]): List[Token] = toks match {
