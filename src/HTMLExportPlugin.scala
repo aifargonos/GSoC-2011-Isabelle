@@ -228,18 +228,30 @@ object HTMLExportPlugin
           }
         }
 
-        for ((command, command_start) <- command_iterator if !command.is_ignored) {
+        var last_was_text_command = true
+        for ((command, command_start) <- command_iterator) {
 //          buff ++= "TODO .: command: " + command + "\n"// TODO DEBUG
-          if(text_command_name(command.name)) {
-            process_text(command, command_start)
+          if(last_was_text_command) {
+            if(text_command_name(command.name)) {
+              process_text(command, command_start)
+            } else {
+              if(!command.is_ignored) {
+                buff ++= "<pre class=\"source\">"
+                process_commands(command, command_start)
+                last_was_text_command = false
+              }
+            }
           } else {
-            // TODO .: this makes breaks between commands
-            // TODO .: do own iteration that will group the commands
-            buff ++= "<pre class=\"source\">"
-            process_commands(command, command_start)
-            buff ++= "</pre>\n"
+            if(text_command_name(command.name)) {
+              buff ++= "</pre>\n"
+              process_text(command, command_start)
+              last_was_text_command = true
+            } else {
+              process_commands(command, command_start)
+            }
           }
         }
+        if(!last_was_text_command) buff ++= "</pre>\n"
 
     }
 

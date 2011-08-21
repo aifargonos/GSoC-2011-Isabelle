@@ -157,9 +157,6 @@ body { background-color: #FFFFFF; }
 
 <body>
 
-  <h1>Test of HTMLexport !!! TODO .: change this template !!!</h1>
-  <p>some text...</p>
-
   {{ source }}
 
 </body>

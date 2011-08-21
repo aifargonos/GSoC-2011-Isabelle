@@ -57,7 +57,8 @@ object Counter
   }
 
   
-  new Counter("section")
+  new Counter("chapter")
+  new Counter("section", "chapter")
   new Counter("subsection", "section")
   new Counter("subsubsection", "subsection")
   

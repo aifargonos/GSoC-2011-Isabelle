@@ -30,6 +30,10 @@ case class Par_End() extends Command
 case class Line_Break() extends Command
 case class NBSP() extends Command
 
+case class Header_Begin() extends Command
+case class Header_End() extends Command
+case class Chapter_Begin() extends Command
+case class Chapter_End() extends Command
 case class Section_Begin() extends Command
 case class Section_End() extends Command
 case class Subsection_Begin() extends Command

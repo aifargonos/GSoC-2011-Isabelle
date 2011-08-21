@@ -321,6 +321,8 @@ object Macro
 
       // BEGIN command (tag/style)
       val out_with_begin = out enqueue Par_End() enqueue (level match {
+        case "header" => Header_Begin()
+        case "chapter" => Chapter_Begin()
         case "section" => Section_Begin()
         case "subsection" => Subsection_Begin()
         case "subsubsection" => Subsubsection_Begin()
@@ -334,6 +336,14 @@ object Macro
           case None =>
 
             val number = level match {
+              // TODO !!! header and chapter !!!
+              case "header" =>
+                for(c <- "") yield Character(c)
+              case "chapter" =>
+                val cc = Counter("chapter")
+                cc.step
+                val num = cc.value.toString
+                for(c <- num) yield Character(c)
               case "section" =>
                 val sc = Counter("section")
                 sc.step
@@ -382,6 +392,8 @@ object Macro
 
             // END command (tag/style)
             val out_with_end = out enqueue (level match {// TODO .: better levels
+              case "header" => Header_End()
+              case "chapter" => Chapter_End()
               case "section" => Section_End()
               case "subsection" => Subsection_End()
               case "subsubsection" => Subsubsection_End()
@@ -399,6 +411,8 @@ object Macro
       }
     }
   }
+  define(section_macro("header"))
+  define(section_macro("chapter"))
   define(section_macro("section"))
   define(section_macro("subsection"))
   define(section_macro("subsubsection"))
