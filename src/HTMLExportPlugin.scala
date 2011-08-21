@@ -12,6 +12,7 @@ import org.gjt.sp.jedit.EditPlugin
 import org.gjt.sp.jedit.View
 import org.gjt.sp.jedit.jEdit
 
+import isabelle.Command
 import isabelle.Markup
 import isabelle.Markup_Tree
 import isabelle.Pretty
@@ -21,6 +22,7 @@ import isabelle.jedit.Isabelle
 import isabelle.XML
 import isabelle.jedit.Document_View
 import scala.collection.mutable.ListBuffer
+import subLaTeX.SubLaTeX
 
 
 
@@ -117,11 +119,15 @@ object HTMLExportPlugin
 
   /* convert */
 
+  val text_command_name = Set("header", "chapter", "section", "subsection", "subsubsection", "text",
+    /*"text_raw", TODO??*/"sect", "subsect", "subsubsect", "txt"/*, "txt_raw"TODO??*/)
+
   // TODO .: input should be probably something more stringish ..
   def convert(view: View) =
   {
 
-    val buff = new ListBuffer[XML.Tree]
+//    val buff = new ListBuffer[XML.Tree]
+    val buff = new StringBuilder
 
     Document_View(view.getTextArea) match {
       case None => throw new Exception("Failed to retrieve a Document_View")// TODO .: something more standard
@@ -129,8 +135,18 @@ object HTMLExportPlugin
 
         val model = doc_view.model
         val snapshot = model.snapshot// TODO .: some threading :. as in isabelle_sidekick
+        val command_iterator = snapshot.node.command_range()
+        val sublatex = new SubLaTeX()
 
-        for ((command, command_start) <- snapshot.node.command_range()) {
+        /*
+         * TODO .:
+         *  process until text command
+         *  if iterator.hasNext process text command
+         *  repeat until iterator.isEmpty
+         */
+
+        def process_commands(command: Command, command_start: Text.Offset) =
+        {
 
           /*
            *  traverse Markup_Tree as in Markup_Tree.toString with last_offset
@@ -186,13 +202,48 @@ object HTMLExportPlugin
           }
 
           val (xml_body, _) = traverse_tree(snapshot.state(command).root_markup, command_start)
-          buff ++= xml_body
+          buff ++= XML.string_of_body(xml_body)
 
+        }
+
+        def process_text(command: Command, command_start: Text.Offset) =
+        {
+          snapshot.state(command).markup.branches.toList.map(_._2) match {
+            case
+              (Text.Info(_, XML.Elem(Markup(Markup.COMMAND, Markup.Name(name)), _)), _)::
+              (Text.Info(source_range, XML.Elem(Markup(Markup.VERBATIM, _), _)), _)::
+            _ =>
+              val to_parse = name match {
+                case name if name == "text" || name == "txt" =>
+                  command.source.substring(source_range.start+2, source_range.stop-2)
+                case name if name.endsWith("sect") =>
+                  "\\" + name + "ion{" +
+                    command.source.substring(source_range.start+2, source_range.stop-2) + "}"
+                case name =>
+                  "\\" + name + "{" +
+                    command.source.substring(source_range.start+2, source_range.stop-2) + "}"
+              }
+              buff ++= sublatex(to_parse).toString// TODO .: CharSequence to TraversableOnce[Char]
+            case _ => error("Unexpected format of markup for command with offset " + command_start)
+          }
+        }
+
+        for ((command, command_start) <- command_iterator if !command.is_ignored) {
+//          buff ++= "TODO .: command: " + command + "\n"// TODO DEBUG
+          if(text_command_name(command.name)) {
+            process_text(command, command_start)
+          } else {
+            // TODO .: this makes breaks between commands
+            // TODO .: do own iteration that will group the commands
+            buff ++= "<pre class=\"source\">"
+            process_commands(command, command_start)
+            buff ++= "</pre>\n"
+          }
         }
 
     }
 
-    Template(Map("source" -> XML.string_of_body(buff.toList)))
+    Template(Map("source" -> buff.toString))
   }
 
 

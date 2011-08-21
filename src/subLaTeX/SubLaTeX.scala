@@ -9,8 +9,9 @@ package subLaTeX
  *    ignoring empty paragraphs ...
  */
 
-object SubLaTeX
+class SubLaTeX
 {
+  Counter.reset_all()
   
   
   
@@ -50,7 +51,7 @@ object SubLaTeX
     case Large_End() => "<!--end size--></span>"
   }
   
-  def output(tokens: Seq[Token]): CharSequence =
+  private def output(tokens: Seq[Token]): CharSequence =
   {
     val ret = for(token <- tokens) yield {// TODO use buffer
       token match {
@@ -66,7 +67,6 @@ object SubLaTeX
   
   def apply(in: CharSequence): CharSequence =
   {
-    Counter.reset_all()
     output(Lexer.parseAll(in))
   }
   

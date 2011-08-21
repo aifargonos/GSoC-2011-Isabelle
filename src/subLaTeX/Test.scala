@@ -121,7 +121,7 @@ Number1  \\\\\  23number\par123,567 123, 567 a,text a, text a  %commentComment!!
 </head>
 <body>
 """)
-    out.print(SubLaTeX(textInput))
+    out.print(new SubLaTeX()(textInput))
     out.print("""
 </body>
 </html>
