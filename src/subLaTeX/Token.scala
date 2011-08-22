@@ -1,3 +1,10 @@
+/*  Title:      src/subLaTeX/Token.scala
+    Author:     aifargonos
+
+Output commands for subLaTeX
+
+
+*/
 
 package subLaTeX
 

@@ -1,3 +1,10 @@
+/*  Title:      src/subLaTeX/Macro.scala
+    Author:     aifargonos
+
+Macro management for subLaTeX
+
+and definitions of built-in macros.
+*/
 
 package subLaTeX
 

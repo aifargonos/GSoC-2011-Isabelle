@@ -1,0 +1,131 @@
+\documentclass{article}
+
+
+\usepackage{geometry}
+\geometry{a4paper}
+
+\usepackage[parfill]{parskip}
+
+\usepackage[utf8]{inputenc}
+\usepackage[T1]{fontenc}
+
+\usepackage{hyperref}
+
+
+
+\title{GSoC -- Isabelle/jEdit document browser\\and various enhancements:\\Description and Design}
+\author{Peter Skočovský (aifargonos)}
+\date{}
+
+\begin{document}
+\maketitle
+
+
+
+\section{The HTMLExport plugin}
+
+
+\subsection{General description}
+
+HTMLExport is a \href{http://www.jedit.org/}{jEdit} plugin working together
+with \href{http://isabelle.in.tum.de/}{Isabelle/jEdit}. It was written for Isabelle/717880e98e6b
+and has the same dependencies as Isabelle/jEdit.
+
+HTMLExport plugin produces XHTML documents from Isabelle's \texttt{.thy} files
+and displays the documents in its dockable window with \href{http://lobobrowser.org/cobra.jsp}{Cobra HTML Renderer}.
+The document can be exported to a file specified by plugin's options.
+
+
+\subsection{Conversion process}
+
+The plugin traverses Isabelle commands obtained from \verb+snapshot.node.command_range()+
+in function \verb+HTMLExportPlugin.convert(view: View)+.
+The commands and their results are then decomposed by \verb+snapshot.state(command).markup+
+and translated to XHTML. Markup commands are processed by local function \verb+process_text+
+and their text arguments are interpreted by sub\LaTeX.
+All other commands are processed by local function \verb+process_command+
+and translated directly to XHTML as defined in function \verb+HTMLExportPlugin.xml_info_to_xhtml+.
+Produced XHTML is then passed to \verb+Template+ where it is inserted intro a template of the document.
+
+
+
+\section{sub\LaTeX}
+
+
+\subsection{Design}
+
+sub\LaTeX's basics were designed to be as similar to \LaTeX as possible.
+For this purposes the parsing process was divided into character category management,
+lexer, macro management and output layer.
+Character category management assigns categories to characters as it is done in \TeX.
+Lexer then groups these characters according to their categories into tokens.
+Since syntactic layer of \TeX is not distinguishable from lexical layer,
+lexer also handles context and interprets macros. Lexer outputs a sequence of output commands
+that are interpreted by output layer and translated into XHTML.
+
+
+\subsection{Implementation details}
+
+\paragraph{Character category management} is implemented in \verb+CatCode+.
+Instances of class \verb+CatCode+ represents \TeX character categories.
+Method \verb+apply(c: Char): Boolean+ of these instances determines
+whether a character belongs to a category represented by this instance.
+
+\paragraph{Lexer} is implemented in \verb+Lexer+. It extends \verb+scala.util.parsing.combinator.Parsers+
+and its \verb+type Elem+ is \verb+Char+.
+Parser combinators \verb+is(cc: CatCode)+ and%\\
+\verb+is_not(cc: CatCode)+ accepts characters according to their category.
+All other parser combinators accept an result of previous parser as an argument
+and returns parser that is meant to augment this argument with what it parses.
+The parsing context is passed from parser to parser and altered during the parsing.
+A type of this context is \verb+type Context+ and it is meant to store output queue and stacks for groups,
+environments and macros. However, only stack for groups and output queue is implemented so far.
+Parser combinator \verb+rep_arg+ chains parsers returned by \verb+pf+
+such that result of previous parser is an argument for next call to \verb+pf+.
+
+\paragraph{Grammar} (if it can be called grammar) is determined by these parser combinators:
+\verb+body+ is alternative of \verb+syntactic_sugar+, \verb+command+, \verb+character+,
+\verb+white_space+ and \verb+group+.
+
+\verb+syntactic_sugar+ is implemented in \verb+Syntactic_Sugar+
+for better modularity. It is meant to parse implicit paragraphs (two newlines), comments and
+special sequences like \verb+``+. Problem is that implicit paragraphs must be implemented
+in real preprocessing (simple replacement of two newlines by \verb+\par+)
+in order for sub\LaTeX to work like \TeX.% So it will be best if comments are moved to Lexer.
+Preprocessing can be implemented as a subclass of \verb+CharSequenceReader+
+that does substitution at the beginning of source before returning rest.
+
+\verb+command+ parses \LaTeX command and directly interprets it as a macro.
+How parsing continues after command depends on what command it is so it is determined by macro management.
+
+\verb+character+ and \verb+white_space+ parses simply one character and a sequence of white-space characters.
+
+\verb+group+ parsers \LaTeX group and alters groups stack in context.
+Context in the current implementation contains only one stack.
+However it will be better if there are separate stacks for environments, for local macro definitions
+and for output commands that have to be terminated at the end of the group (which is the only one implemented now).
+Also it will be better if \verb+group+ was implemented by one function
+that will, at its end, restore the groups stack as it was passed to it.
+
+\paragraph{Macro management} is implemented in \verb+Macro+.
+Each instance of \verb+class Macro+ specifies how is parsed what follows after its command string in method.
+This is done by its method \verb+parser+ that returns parser which is meant to alter the context.
+\verb+object Macro+ contains storage for macros and functions for its manipulation.
+This storage will have to be connected with a macro stack in context in order to enable local macro definitions.
+User definitions of macros are not possible yet, all implemented macros are defined in \verb+object Macro+.
+
+Macro \verb+\normalfont+ cannot be implemented now. The \verb+group+ parser combinator have to be changed
+as described above to enable implementation of this macro.
+
+\paragraph{Output layer} is implemented in \verb+SubLaTeX+. It translates output commands obtained from
+lexer's context into XHTML tags. The output commands are specified in \verb+Token+ now.
+\verb+Token+ can be renamed into something more appropriate.
+Upon creation of \verb+SubLaTeX+ objects, the lexer is initialized (now just counters are reset)
+and the parsing is run by calling method \verb+apply+ of this object.
+
+\paragraph{Counters} are implemented in \verb+Counter+ according to \LaTeX's counters.
+However, there is no macro API yet.
+
+
+
+\end{document}

@@ -1,3 +1,10 @@
+/*  Title:      src/subLaTeX/Counter.scala
+    Author:     aifargonos
+
+Counters for subLaTeX
+
+as LaTeX counters.
+*/
 
 package subLaTeX
 

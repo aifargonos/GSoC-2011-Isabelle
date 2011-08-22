@@ -1,4 +1,4 @@
-/*  Title:      .../HTMLExportOptions.props
+/*  Title:      src/HTMLExportOptions.scala
     Author:     aifargonos
 
 Options for HTMLExportPlugin.

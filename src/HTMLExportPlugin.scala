@@ -1,4 +1,4 @@
-/*  Title:      .../HTMLExportPlugin.props
+/*  Title:      src/HTMLExportPlugin.scala
     Author:     aifargonos
 
 HTML export jEdit plugin for Isabelle/jEdit.
@@ -21,7 +21,6 @@ import isabelle.Text
 import isabelle.jedit.Isabelle
 import isabelle.XML
 import isabelle.jedit.Document_View
-import scala.collection.mutable.ListBuffer
 import subLaTeX.SubLaTeX
 
 
@@ -126,7 +125,6 @@ object HTMLExportPlugin
   def convert(view: View) =
   {
 
-//    val buff = new ListBuffer[XML.Tree]
     val buff = new StringBuilder
 
     Document_View(view.getTextArea) match {
@@ -145,7 +143,7 @@ object HTMLExportPlugin
          *  repeat until iterator.isEmpty
          */
 
-        def process_commands(command: Command, command_start: Text.Offset) =
+        def process_command(command: Command, command_start: Text.Offset) =
         {
 
           /*
@@ -237,7 +235,7 @@ object HTMLExportPlugin
             } else {
               if(!command.is_ignored) {
                 buff ++= "<pre class=\"source\">"
-                process_commands(command, command_start)
+                process_command(command, command_start)
                 last_was_text_command = false
               }
             }
@@ -247,7 +245,7 @@ object HTMLExportPlugin
               process_text(command, command_start)
               last_was_text_command = true
             } else {
-              process_commands(command, command_start)
+              process_command(command, command_start)
             }
           }
         }

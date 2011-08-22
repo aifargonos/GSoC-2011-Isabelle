@@ -1,4 +1,4 @@
-/*  Title:      .../HTMLExportDockable.props
+/*  Title:      src/HTMLExportDockable.scala
     Author:     aifargonos
 
 Dockable window for HTMLExportPlugin.

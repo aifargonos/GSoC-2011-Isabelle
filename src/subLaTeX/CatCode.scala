@@ -1,3 +1,10 @@
+/*  Title:      src/subLaTeX/CatCode.scala
+    Author:     aifargonos
+
+Character category management for subLaTeX
+
+categories are represented by instances of class CatCode.
+*/
 
 package subLaTeX
 

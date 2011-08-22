@@ -1,5 +1,10 @@
 <?xml version="1.0"?>
 <!DOCTYPE ACTIONS SYSTEM "actions.dtd">
+<!--Title:      src/actions.xml
+    Author:     aifargonos
+
+Actions for HTMLExportPlugin
+-->
 
 <ACTIONS>
 	<ACTION NAME="htmlexport.dockable">

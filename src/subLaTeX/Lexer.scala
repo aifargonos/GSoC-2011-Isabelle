@@ -1,3 +1,10 @@
+/*  Title:      src/subLaTeX/Lexer.scala
+    Author:     aifargonos
+
+subLaTeX lexer
+
+most of parsing is done here.
+*/
 
 package subLaTeX
 

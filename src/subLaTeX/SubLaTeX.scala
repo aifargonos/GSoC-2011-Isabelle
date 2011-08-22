@@ -1,3 +1,10 @@
+/*  Title:      src/subLaTeX/SubLaTeX.scala
+    Author:     aifargonos
+
+Output layer for subLaTeX
+
+main method is SubLaTeX.apply.
+*/
 
 package subLaTeX
 
@@ -11,6 +18,7 @@ package subLaTeX
 
 class SubLaTeX
 {
+  // initialisation
   Counter.reset_all()
   
   

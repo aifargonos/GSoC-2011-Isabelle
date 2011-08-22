@@ -1,5 +1,10 @@
 <?xml version="1.0"?>
 <!DOCTYPE DOCKABLES SYSTEM "dockables.dtd">
+<!--Title:      src/dockables.xml
+    Author:     aifargonos
+
+Dockables for HTMLExportPlugin
+-->
 
 <DOCKABLES>
 	<DOCKABLE NAME="htmlexport">

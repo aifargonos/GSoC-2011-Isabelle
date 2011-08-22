@@ -1,3 +1,10 @@
+/*  Title:      src/subLaTeX/Syntactic_Sugar.scala
+    Author:     aifargonos
+
+Additional parser combinators for subLaTeX
+
+that are called as first.
+*/
 
 package subLaTeX
 

@@ -1,3 +1,8 @@
+#   Title:      src/HTMLExportPlugin.props
+#   Author:     aifargonos
+#
+# Properties for HTMLExportPlugin
+#
 
 # jEdit only needs to load the plugin the first time the user accesses it
 # the presence of this property also tells jEdit the plugin is using the new API

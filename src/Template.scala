@@ -1,4 +1,4 @@
-/*  Title:      .../Template.props
+/*  Title:      src/Template.scala
     Author:     aifargonos
 
 XHTML template for HTMLExportPlugin

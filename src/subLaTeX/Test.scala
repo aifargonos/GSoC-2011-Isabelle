@@ -1,3 +1,10 @@
+/*  Title:      src/subLaTeX/Test.scala
+    Author:     aifargonos
+
+Simple test for subLaTeX
+
+only runs subLaTeX on one input.
+*/
 
 package subLaTeX
 
