@@ -4,7 +4,7 @@
 	
 	<target name="init" description="Initialisation.">
 		<property name="src.dir" location="src"/>
-		<property name="src.files" value="HTMLExportDockable.scala HTMLExportOptions.scala HTMLExportPlugin.scala Template.scala"/><!-- TODO .: this may be probably more general :. -->
+		<property name="src.files" value="HTMLExportDockable.scala HTMLExportOptions.scala HTMLExportPlugin.scala Template.scala subLaTeX/CatCode.scala subLaTeX/Counter.scala subLaTeX/Lexer.scala subLaTeX/Macro.scala subLaTeX/SubLaTeX.scala subLaTeX/Syntactic_Sugar.scala subLaTeX/Test.scala subLaTeX/Token.scala"/><!-- TODO .: this may be probably more general :. -->
 		<property name="build.dir" location="simple_build"/>
 		<property name="jar.dir" location="simple_dist"/>
 		<property name="jar.name" value="${ant.project.name}.jar"/>
